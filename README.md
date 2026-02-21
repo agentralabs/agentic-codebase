@@ -45,6 +45,10 @@ Four languages. Twenty-four query types. One file holds everything. Sub-microsec
   <img src="assets/semantic-graph.svg" alt="AgenticCodebase semantic graph with typed code units, dependency edges, impact signals, and prophecy paths" width="800">
 </p>
 
+<p align="center">
+  <img src="assets/architecture-agentra.svg" alt="AgenticCodebase architecture in Agentra Labs design system" width="980">
+</p>
+
 ---
 
 <a name="benchmarks"></a>
@@ -238,13 +242,13 @@ cargo install agentic-codebase
 Install script (binary release + MCP config merge):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh | bash
+curl -fsSL https://agentralabs.tech/install/codebase | bash
 ```
 
 | Channel | Command | Result |
 |:---|:---|:---|
 | crates.io (official) | `cargo install agentic-codebase` | Installs both `acb` and `acb-mcp` |
-| GitHub releases (official) | `curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh \| bash` | Installs binaries and merges MCP config |
+| GitHub releases (official) | `curl -fsSL https://agentralabs.tech/install/codebase \| bash` | Installs binaries and merges MCP config |
 
 ## Deployment Model
 

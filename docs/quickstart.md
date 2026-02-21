@@ -4,6 +4,14 @@ Get AgenticCodebase running in under 5 minutes. This guide covers installation, 
 
 ## Installation
 
+### One-line installer (recommended)
+
+```bash
+curl -fsSL https://agentralabs.tech/install/codebase | bash
+```
+
+Installs `acb` and `acb-mcp` release binaries and merges MCP config for desktop clients.
+
 ### Cargo install
 
 ```bash

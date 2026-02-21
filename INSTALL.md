@@ -3,7 +3,7 @@
 ## Quick Install (one-liner)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh | bash
+curl -fsSL https://agentralabs.tech/install/codebase | bash
 ```
 
 Downloads pre-built `acb` + `acb-mcp` binaries, installs to `~/.local/bin/`, and merges MCP server config into Claude Desktop and Claude Code. Requires `curl` and `jq`.
@@ -237,7 +237,7 @@ cargo bench
 | **agentic-codebase** (core crate) | [crates.io](https://crates.io/crates/agentic-codebase) | `cargo install agentic-codebase` |
 | **acb CLI binary** | Bundled in `agentic-codebase` crate | `cargo install agentic-codebase` |
 | **acb-mcp MCP binary** | Bundled in `agentic-codebase` crate | `cargo install agentic-codebase` |
-| **One-line installer** | GitHub release artifacts | `curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh \| bash` |
+| **One-line installer** | GitHub release artifacts | `curl -fsSL https://agentralabs.tech/install/codebase \| bash` |
 
 ---
 
