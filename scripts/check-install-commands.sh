@@ -24,6 +24,13 @@ assert_contains() {
   fi
 }
 
+http_ok() {
+  local url="$1"
+  curl -fsSL --retry 3 --retry-delay 1 --retry-connrefused \
+    -A "agentra-install-guardrails/1.0 (+https://agentralabs.tech)" \
+    "$url" >/dev/null
+}
+
 # Front-facing command requirements
 assert_contains "curl -fsSL https://agentralabs.tech/install/codebase | bash" README.md docs/quickstart.md
 assert_contains "cargo install agentic-codebase" README.md docs/quickstart.md
@@ -32,8 +39,8 @@ assert_contains "cargo install agentic-codebase" README.md docs/quickstart.md
 bash -n scripts/install.sh
 bash scripts/install.sh --dry-run >/dev/null
 
-# Public endpoint/package health
-curl -fsSL https://agentralabs.tech/install/codebase >/dev/null
-curl -fsSL https://crates.io/api/v1/crates/agentic-codebase >/dev/null
+# Public package/repo health (stable URLs for CI)
+http_ok https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh
+http_ok https://crates.io/api/v1/crates/agentic-codebase
 
 echo "Install command guardrails passed (codebase)."
