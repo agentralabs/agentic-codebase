@@ -15,7 +15,7 @@ Requires Rust 1.70 or later (tested with 1.90.0). This installs both the `acb` C
 ### From source
 
 ```bash
-git clone https://github.com/agentralabs/agentic-codebase.git
+git clone https://github.com/agentralabs/codebase.git
 cd agentic-codebase
 cargo build --release
 ```

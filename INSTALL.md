@@ -1,5 +1,15 @@
 # Installation Guide
 
+## Quick Install (one-liner)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh | bash
+```
+
+Downloads pre-built `acb` + `acb-mcp` binaries, installs to `~/.local/bin/`, and merges MCP server config into Claude Desktop and Claude Code. Requires `curl` and `jq`.
+
+---
+
 Three ways to install AgenticCodebase, depending on your use case.
 
 ---
@@ -188,7 +198,7 @@ An agent can associate what it *knows* (memory), what it *sees* (vision), and wh
 ## Build from Source
 
 ```bash
-git clone https://github.com/agentralabs/agentic-codebase.git
+git clone https://github.com/agentralabs/codebase.git
 cd agentic-codebase
 
 # Build both binaries (acb + acb-mcp)
@@ -222,9 +232,12 @@ cargo bench
 
 ## Package Registry Links
 
-| Package | Registry | Install |
+| Component | Distribution | Install |
 |:---|:---|:---|
-| **agentic-codebase** | [crates.io](https://crates.io/crates/agentic-codebase) | `cargo install agentic-codebase` |
+| **agentic-codebase** (core crate) | [crates.io](https://crates.io/crates/agentic-codebase) | `cargo install agentic-codebase` |
+| **acb CLI binary** | Bundled in `agentic-codebase` crate | `cargo install agentic-codebase` |
+| **acb-mcp MCP binary** | Bundled in `agentic-codebase` crate | `cargo install agentic-codebase` |
+| **One-line installer** | GitHub release artifacts | `curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh \| bash` |
 
 ---
 

@@ -3,7 +3,7 @@
 # Downloads pre-built binary and configures Claude Desktop/Code.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/agentralabs/agentic-codebase/main/scripts/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh | bash
 #
 # Future (when agentralabs.tech is live):
 #   curl -fsSL https://agentralabs.tech/install/codebase | sh
@@ -23,7 +23,7 @@
 set -euo pipefail
 
 # ── Constants ──────────────────────────────────────────────────────────
-REPO="agentralabs/agentic-codebase"
+REPO="agentralabs/codebase"
 BINARY_NAME="acb-mcp"
 SERVER_KEY="agentic-codebase"
 INSTALL_DIR="$HOME/.local/bin"

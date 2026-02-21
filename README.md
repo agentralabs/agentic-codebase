@@ -13,10 +13,6 @@
   <a href="#quickstart">Quickstart</a> · <a href="#why-agenticcodebase">Why</a> · <a href="#benchmarks">Benchmarks</a> · <a href="#the-query-engine">Query Engine</a> · <a href="#mcp-server">MCP Server</a> · <a href="#install">Install</a> · <a href="INSTALL.md">Full Install Guide</a> · <a href="docs/api-reference.md">API</a> · <a href="paper/paper-i-semantic-compiler/agenticcodebase-paper.pdf">Paper</a>
 </p>
 
-> **Standalone guarantee:** AgenticCodebase is independently installable and operable. Integration with AgenticMemory/AgenticVision is optional, never required.
->
-> **Autonomic defaults (phase 4):** profile-driven operations (`ACB_AUTONOMIC_PROFILE` = `desktop|cloud|aggressive`) now control backup/maintenance posture, while compile keeps rolling output backups and collective cache self-maintenance active by default. Storage migration is policy-gated (`ACB_STORAGE_MIGRATION_POLICY` = `auto-safe|strict|off`) with checkpointed auto-safe behavior. SLA-aware collective maintenance throttling is enabled (`ACB_SLA_MAX_REGISTRY_OPS_PER_MIN`) plus health-ledger snapshots (`ACB_HEALTH_LEDGER_DIR` or `AGENTRA_HEALTH_LEDGER_DIR`) for CLI and collective surfaces. Default ledger location is `~/.agentra/health-ledger`. Optional tuning: `ACB_AUTO_BACKUP`, `ACB_AUTO_BACKUP_RETENTION`, `ACB_AUTO_BACKUP_DIR`, `ACB_COLLECTIVE_CACHE_MAINTENANCE_SECS`, `ACB_HEALTH_LEDGER_EMIT_SECS`.
-
 ---
 
 ## AI agents can't understand code across sessions.
@@ -224,6 +220,31 @@ Calls, CalledBy, Imports, ImportedBy, Contains, ContainedBy, Inherits, Inherited
 ```bash
 cargo install agentic-codebase
 ```
+
+Install script (binary release + MCP config merge):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh | bash
+```
+
+| Channel | Command | Result |
+|:---|:---|:---|
+| crates.io (official) | `cargo install agentic-codebase` | Installs both `acb` and `acb-mcp` |
+| GitHub releases (official) | `curl -fsSL https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh \| bash` | Installs binaries and merges MCP config |
+
+## Deployment Model
+
+- **Standalone by default:** AgenticCodebase is independently installable and operable. Integration with AgenticMemory or AgenticVision is optional, never required.
+- **Autonomic operations by default:** compile/runtime maintenance uses safe profile-based defaults with rolling backups, migration safeguards, collective cache maintenance, and health-ledger snapshots.
+
+| Area | Default behavior | Controls |
+|:---|:---|:---|
+| Autonomic profile | Conservative local-first posture | `ACB_AUTONOMIC_PROFILE=desktop|cloud|aggressive` |
+| Rolling backup | Compile writes checkpointed backups for existing outputs | `ACB_AUTO_BACKUP`, `ACB_AUTO_BACKUP_RETENTION`, `ACB_AUTO_BACKUP_DIR` |
+| Storage migration | Policy-gated with checkpointed auto-safe path | `ACB_STORAGE_MIGRATION_POLICY=auto-safe|strict|off` |
+| Collective cache maintenance | Periodic expiry cleanup of collective cache entries | `ACB_COLLECTIVE_CACHE_MAINTENANCE_SECS` |
+| Maintenance throttling | SLA-aware under sustained registry load | `ACB_SLA_MAX_REGISTRY_OPS_PER_MIN` |
+| Health ledger | Periodic operational snapshots (default: `~/.agentra/health-ledger`) | `ACB_HEALTH_LEDGER_DIR`, `AGENTRA_HEALTH_LEDGER_DIR`, `ACB_HEALTH_LEDGER_EMIT_SECS` |
 
 See the [Full Installation Guide](INSTALL.md) for all options including MCP server setup, library usage, and build-from-source instructions.
 
