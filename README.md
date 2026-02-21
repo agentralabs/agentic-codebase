@@ -299,3 +299,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 ## License
 
 MIT -- see [LICENSE](LICENSE) for details.
+
+---
+
+<p align="center">
+  <sub>Built by <a href="https://github.com/agentralabs"><strong>Agentra Labs</strong></a></sub>
+</p>
