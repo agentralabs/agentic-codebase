@@ -243,10 +243,26 @@ Install script (binary release + MCP config merge):
 curl -fsSL https://agentralabs.tech/install/codebase | bash
 ```
 
+Environment profiles (one command per environment):
+
+```bash
+# Desktop MCP clients (auto-merge Claude Desktop + Claude Code when detected)
+curl -fsSL https://agentralabs.tech/install/codebase/desktop | bash
+
+# Terminal-only (no desktop config writes)
+curl -fsSL https://agentralabs.tech/install/codebase/terminal | bash
+
+# Remote/server hosts (no desktop config writes)
+curl -fsSL https://agentralabs.tech/install/codebase/server | bash
+```
+
 | Channel | Command | Result |
 |:---|:---|:---|
 | crates.io (official) | `cargo install agentic-codebase` | Installs both `acb` and `acb-mcp` |
 | GitHub installer (official) | `curl -fsSL https://agentralabs.tech/install/codebase \| bash` | Installs release binaries when available, otherwise source fallback; merges MCP config |
+| GitHub installer (desktop profile) | `curl -fsSL https://agentralabs.tech/install/codebase/desktop \| bash` | Explicit desktop profile behavior |
+| GitHub installer (terminal profile) | `curl -fsSL https://agentralabs.tech/install/codebase/terminal \| bash` | Installs binaries only; no desktop config writes |
+| GitHub installer (server profile) | `curl -fsSL https://agentralabs.tech/install/codebase/server \| bash` | Installs binaries only; server-safe behavior |
 
 ## Deployment Model
 

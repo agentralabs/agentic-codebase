@@ -12,6 +12,19 @@ curl -fsSL https://agentralabs.tech/install/codebase | bash
 
 Installs `acb` and `acb-mcp` release binaries and merges MCP config for desktop clients.
 
+### Environment-specific installers
+
+```bash
+# Desktop MCP clients
+curl -fsSL https://agentralabs.tech/install/codebase/desktop | bash
+
+# Terminal-only (no desktop config writes)
+curl -fsSL https://agentralabs.tech/install/codebase/terminal | bash
+
+# Remote/server host (no desktop config writes)
+curl -fsSL https://agentralabs.tech/install/codebase/server | bash
+```
+
 ### Cargo install
 
 ```bash

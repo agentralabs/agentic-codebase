@@ -8,6 +8,19 @@ curl -fsSL https://agentralabs.tech/install/codebase | bash
 
 Downloads pre-built `acb` + `acb-mcp` binaries, installs to `~/.local/bin/`, and merges MCP server config into Claude Desktop and Claude Code. Requires `curl` and `jq`.
 
+### Install by environment
+
+```bash
+# Desktop MCP clients (auto-merge Claude configs)
+curl -fsSL https://agentralabs.tech/install/codebase/desktop | bash
+
+# Terminal-only (no desktop config writes)
+curl -fsSL https://agentralabs.tech/install/codebase/terminal | bash
+
+# Remote/server host (no desktop config writes)
+curl -fsSL https://agentralabs.tech/install/codebase/server | bash
+```
+
 ---
 
 Three ways to install AgenticCodebase, depending on your use case.

@@ -33,11 +33,17 @@ http_ok() {
 
 # Front-facing command requirements
 assert_contains "curl -fsSL https://agentralabs.tech/install/codebase | bash" README.md docs/quickstart.md
+assert_contains "curl -fsSL https://agentralabs.tech/install/codebase/desktop | bash" README.md docs/quickstart.md INSTALL.md
+assert_contains "curl -fsSL https://agentralabs.tech/install/codebase/terminal | bash" README.md docs/quickstart.md INSTALL.md
+assert_contains "curl -fsSL https://agentralabs.tech/install/codebase/server | bash" README.md docs/quickstart.md INSTALL.md
 assert_contains "cargo install agentic-codebase" README.md docs/quickstart.md
 
 # Installer health
 bash -n scripts/install.sh
 bash scripts/install.sh --dry-run >/dev/null
+bash scripts/install.sh --profile=desktop --dry-run >/dev/null
+bash scripts/install.sh --profile=terminal --dry-run >/dev/null
+bash scripts/install.sh --profile=server --dry-run >/dev/null
 
 # Public package/repo health (stable URLs for CI)
 http_ok https://raw.githubusercontent.com/agentralabs/codebase/main/scripts/install.sh
