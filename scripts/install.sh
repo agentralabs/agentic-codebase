@@ -28,6 +28,7 @@ INSTALL_DIR="$HOME/.local/bin"
 VERSION="latest"
 PROFILE="${AGENTRA_INSTALL_PROFILE:-desktop}"
 DRY_RUN=false
+BAR_ONLY="${AGENTRA_INSTALL_BAR_ONLY:-1}"
 CLAUDE_DESKTOP_CONFIGURED=false
 CLAUDE_CODE_CONFIGURED=false
 
@@ -44,6 +45,71 @@ for arg in "$@"; do
             ;;
     esac
 done
+
+# ── Progress output (bar-only mode by default) ───────────────────────
+exec 3>&1
+if [ "$BAR_ONLY" = "1" ] && [ "$DRY_RUN" = false ]; then
+    exec 1>/dev/null
+fi
+
+PROGRESS=0
+BAR_WIDTH=36
+
+draw_progress() {
+    local percent="$1"
+    local label="$2"
+    local filled=$((percent * BAR_WIDTH / 100))
+    local empty=$((BAR_WIDTH - filled))
+    printf "\r[" >&3
+    printf "%${filled}s" "" | tr " " "#" >&3
+    printf "%${empty}s" "" | tr " " "-" >&3
+    printf "] %3d%% %s" "$percent" "$label" >&3
+}
+
+set_progress() {
+    local percent="$1"
+    local label="$2"
+    PROGRESS="$percent"
+    draw_progress "$percent" "$label"
+}
+
+finish_progress() {
+    printf "\n" >&3
+}
+
+run_with_progress() {
+    local start="$1"
+    local end="$2"
+    local label="$3"
+    shift 3
+
+    local log_file
+    log_file="$(mktemp)"
+    local current="$start"
+
+    set_progress "$current" "$label"
+    "$@" >"$log_file" 2>&1 &
+    local cmd_pid=$!
+
+    while kill -0 "$cmd_pid" 2>/dev/null; do
+        if [ "$current" -lt $((end - 1)) ]; then
+            current=$((current + 1))
+            set_progress "$current" "$label"
+        fi
+        sleep 0.2
+    done
+
+    if ! wait "$cmd_pid"; then
+        finish_progress
+        echo "Install failed during: ${label}" >&3
+        tail -n 80 "$log_file" >&3 || true
+        rm -f "$log_file"
+        return 1
+    fi
+
+    rm -f "$log_file"
+    set_progress "$end" "$label"
+}
 
 validate_profile() {
     case "$PROFILE" in
@@ -114,7 +180,7 @@ download_binary() {
     tmpdir="$(mktemp -d)"
 
     mkdir -p "$INSTALL_DIR"
-    if ! curl -fsSL "$url" -o "${tmpdir}/${asset_name}"; then
+    if ! curl -fsSL "$url" -o "${tmpdir}/${asset_name}" 2>/dev/null; then
         rm -rf "$tmpdir"
         return 1
     fi
@@ -156,9 +222,11 @@ install_from_source() {
     fi
 
     if [ -n "${VERSION:-}" ] && [ "${VERSION}" != "latest" ]; then
-        cargo install --git "${git_url}" --tag "${VERSION}" --locked --force agentic-codebase
+        run_with_progress 45 85 "Installing agentic-codebase" \
+            cargo install --git "${git_url}" --tag "${VERSION}" --locked --force agentic-codebase
     else
-        cargo install --git "${git_url}" --locked --force agentic-codebase
+        run_with_progress 45 85 "Installing agentic-codebase" \
+            cargo install --git "${git_url}" --locked --force agentic-codebase
     fi
 
     mkdir -p "${INSTALL_DIR}"
@@ -291,18 +359,22 @@ check_path() {
 
 # ── Main ──────────────────────────────────────────────────────────────
 main() {
+    set_progress 0 "Starting installer"
     echo "AgenticCodebase Installer"
     echo "========================="
     echo ""
 
+    set_progress 10 "Checking prerequisites"
     check_deps
 
     local platform
+    set_progress 20 "Detecting platform"
     platform="$(detect_platform)"
     echo "Platform: ${platform}"
     validate_profile
     echo "Profile: ${PROFILE}"
 
+    set_progress 30 "Resolving release"
     local installed_from_release=false
     if [ "$VERSION" = "latest" ]; then
         VERSION="$(get_latest_version)"
@@ -311,6 +383,7 @@ main() {
         echo "Version: ${VERSION}"
         if download_binary "$VERSION" "$platform"; then
             installed_from_release=true
+            set_progress 70 "Release binary installed"
         else
             echo "Release artifact not found for ${VERSION}/${platform}; using source fallback."
         fi
@@ -322,6 +395,7 @@ main() {
         install_from_source
     fi
 
+    set_progress 90 "Applying profile setup"
     if [ "$PROFILE" = "desktop" ]; then
         echo ""
         echo "Configuring MCP clients..."
@@ -334,6 +408,9 @@ main() {
 
     print_profile_help
 
+    set_progress 100 "Install complete"
+    finish_progress
+    echo "Install complete: AgenticCodebase (${PROFILE})" >&3
     echo ""
     if [ "$PROFILE" = "desktop" ]; then
         echo "Done! Restart any configured MCP client to use AgenticCodebase."
