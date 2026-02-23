@@ -541,18 +541,14 @@ impl McpServer {
                     None => {
                         return JsonRpcResponse::error(
                             id,
-                            JsonRpcError::invalid_params(
-                                "'max_depth' must be an integer >= 0",
-                            ),
+                            JsonRpcError::invalid_params("'max_depth' must be an integer >= 0"),
                         );
                     }
                 };
                 if depth < 0 {
                     return JsonRpcResponse::error(
                         id,
-                        JsonRpcError::invalid_params(
-                            "'max_depth' must be >= 0",
-                        ),
+                        JsonRpcError::invalid_params("'max_depth' must be >= 0"),
                     );
                 }
                 depth as u32
