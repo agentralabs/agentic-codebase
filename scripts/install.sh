@@ -462,17 +462,16 @@ resolve_graph() {
 
     local repo_root repo_slug graph_dir graph_path fallback
     repo_root="\$(resolve_repo_root)"
-    if is_common_path "\$repo_root"; then
-        return
-    fi
-    repo_slug="\$(slugify "\$repo_root")"
     graph_dir="\${AGENTRA_GRAPH_CACHE_DIR:-\${CODEX_HOME:-\$HOME/.codex}/graphs}"
-    graph_path="\${graph_dir}/\${repo_slug}.acb"
+    if ! is_common_path "\$repo_root"; then
+        repo_slug="\$(slugify "\$repo_root")"
+        graph_path="\${graph_dir}/\${repo_slug}.acb"
 
-    if compile_graph_if_needed "\$repo_root" "\$graph_path"; then
-        if [ -f "\$graph_path" ]; then
-            printf '%s' "\$graph_path"
-            return
+        if compile_graph_if_needed "\$repo_root" "\$graph_path"; then
+            if [ -f "\$graph_path" ]; then
+                printf '%s' "\$graph_path"
+                return
+            fi
         fi
     fi
 
