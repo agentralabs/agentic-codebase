@@ -347,6 +347,111 @@ fn test_mcp_tool_list_units() {
 }
 
 #[test]
+fn test_mcp_tool_list_units_with_type_filter() {
+    let mut server = create_test_server();
+    let response = send_request(
+        &mut server,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "list_units",
+                "arguments": {
+                    "graph": "test",
+                    "unit_type": "function",
+                    "limit": 10
+                }
+            }
+        }),
+    );
+
+    assert!(response.get("result").is_some());
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    let units: Vec<Value> = serde_json::from_str(text).unwrap();
+    assert_eq!(units.len(), 2);
+    assert!(units.iter().all(|u| u["type"] == "function"));
+}
+
+#[test]
+fn test_mcp_tool_list_units_with_invalid_type_filter() {
+    let mut server = create_test_server();
+    let response = send_request(
+        &mut server,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "list_units",
+                "arguments": {
+                    "graph": "test",
+                    "unit_type": "banana"
+                }
+            }
+        }),
+    );
+
+    assert!(response.get("error").is_some());
+    assert_eq!(response["error"]["code"], -32602);
+}
+
+#[test]
+fn test_mcp_tool_impact_analysis_includes_containment_edges() {
+    let mut graph = CodeGraph::with_default_dimension();
+
+    let module = CodeUnit::new(
+        CodeUnitType::Module,
+        Language::Rust,
+        "app".to_string(),
+        "app".to_string(),
+        PathBuf::from("src/app.rs"),
+        Span::new(1, 0, 120, 0),
+    );
+    let module_id = graph.add_unit(module);
+
+    let function = CodeUnit::new(
+        CodeUnitType::Function,
+        Language::Rust,
+        "run".to_string(),
+        "app::run".to_string(),
+        PathBuf::from("src/app.rs"),
+        Span::new(10, 0, 50, 0),
+    );
+    let function_id = graph.add_unit(function);
+
+    graph
+        .add_edge(Edge::new(module_id, function_id, EdgeType::Contains))
+        .unwrap();
+
+    let mut server = McpServer::new();
+    server.load_graph("containment".to_string(), graph);
+
+    let response = send_request(
+        &mut server,
+        &json!({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "tools/call",
+            "params": {
+                "name": "impact_analysis",
+                "arguments": {
+                    "graph": "containment",
+                    "unit_id": function_id,
+                    "max_depth": 2
+                }
+            }
+        }),
+    );
+
+    assert!(response.get("result").is_some());
+    let text = response["result"]["content"][0]["text"].as_str().unwrap();
+    let impact: Value = serde_json::from_str(text).unwrap();
+    assert_eq!(impact["root_id"], function_id);
+    assert_eq!(impact["impacted_count"], 1);
+}
+
+#[test]
 fn test_mcp_tool_unknown() {
     let mut server = create_test_server();
     let response = send_request(

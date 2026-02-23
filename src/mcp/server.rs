@@ -11,6 +11,7 @@ use serde_json::{json, Value};
 use crate::engine::query::{ImpactParams, MatchMode, SymbolLookupParams};
 use crate::engine::QueryEngine;
 use crate::graph::CodeGraph;
+use crate::types::{CodeUnitType, EdgeType};
 
 use super::protocol::{JsonRpcError, JsonRpcRequest, JsonRpcResponse};
 
@@ -36,6 +37,25 @@ pub struct McpServer {
 }
 
 impl McpServer {
+    fn parse_unit_type(raw: &str) -> Option<CodeUnitType> {
+        match raw.trim().to_ascii_lowercase().as_str() {
+            "module" | "modules" => Some(CodeUnitType::Module),
+            "symbol" | "symbols" => Some(CodeUnitType::Symbol),
+            "type" | "types" => Some(CodeUnitType::Type),
+            "function" | "functions" => Some(CodeUnitType::Function),
+            "parameter" | "parameters" => Some(CodeUnitType::Parameter),
+            "import" | "imports" => Some(CodeUnitType::Import),
+            "test" | "tests" => Some(CodeUnitType::Test),
+            "doc" | "docs" | "document" | "documents" => Some(CodeUnitType::Doc),
+            "config" | "configs" => Some(CodeUnitType::Config),
+            "pattern" | "patterns" => Some(CodeUnitType::Pattern),
+            "trait" | "traits" => Some(CodeUnitType::Trait),
+            "impl" | "implementation" | "implementations" => Some(CodeUnitType::Impl),
+            "macro" | "macros" => Some(CodeUnitType::Macro),
+            _ => None,
+        }
+    }
+
     /// Create a new MCP server with no loaded graphs.
     pub fn new() -> Self {
         Self {
@@ -195,7 +215,14 @@ impl McpServer {
                             "type": "object",
                             "properties": {
                                 "graph": { "type": "string", "description": "Graph name" },
-                                "unit_type": { "type": "string", "description": "Filter by unit type" },
+                                "unit_type": {
+                                    "type": "string",
+                                    "description": "Filter by unit type",
+                                    "enum": [
+                                        "module", "symbol", "type", "function", "parameter", "import",
+                                        "test", "doc", "config", "pattern", "trait", "impl", "macro"
+                                    ]
+                                },
                                 "limit": { "type": "integer", "default": 50 }
                             }
                         }
@@ -500,11 +527,24 @@ impl McpServer {
         };
 
         let max_depth = args.get("max_depth").and_then(|v| v.as_u64()).unwrap_or(3) as u32;
+        let edge_types = vec![
+            EdgeType::Calls,
+            EdgeType::Imports,
+            EdgeType::Inherits,
+            EdgeType::Implements,
+            EdgeType::UsesType,
+            EdgeType::FfiBinds,
+            EdgeType::References,
+            EdgeType::Returns,
+            EdgeType::ParamType,
+            EdgeType::Overrides,
+            EdgeType::Contains,
+        ];
 
         let params = ImpactParams {
             unit_id,
             max_depth,
-            edge_types: Vec::new(),
+            edge_types,
         };
 
         match self.engine.impact_analysis(graph, params) {
@@ -573,10 +613,32 @@ impl McpServer {
         };
 
         let limit = args.get("limit").and_then(|v| v.as_u64()).unwrap_or(50) as usize;
+        let unit_type_filter = match args.get("unit_type").and_then(|v| v.as_str()) {
+            Some(raw) => match Self::parse_unit_type(raw) {
+                Some(parsed) => Some(parsed),
+                None => {
+                    return JsonRpcResponse::error(
+                        id,
+                        JsonRpcError::invalid_params(format!(
+                            "Unknown unit_type '{}'. Expected one of: module, symbol, type, function, parameter, import, test, doc, config, pattern, trait, impl, macro.",
+                            raw
+                        )),
+                    );
+                }
+            },
+            None => None,
+        };
 
         let units: Vec<Value> = graph
             .units()
             .iter()
+            .filter(|u| {
+                if let Some(expected) = unit_type_filter {
+                    u.unit_type == expected
+                } else {
+                    true
+                }
+            })
             .take(limit)
             .map(|u| {
                 json!({
