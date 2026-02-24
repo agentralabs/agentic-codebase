@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Integration Guide
 
 This guide covers how to integrate AgenticCodebase into various environments: MCP-compatible AI tools, CI/CD pipelines, custom Rust applications, and the broader Agentic ecosystem.

@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Why Teams Adopt AgenticCodebase
 
 Simulation date: 2026-02-23

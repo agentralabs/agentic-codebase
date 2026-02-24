@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Benchmarks
 
 Performance measurements for AgenticCodebase's core operations across various graph sizes. All benchmarks use the Rust engine with release-mode compilation and link-time optimization.

@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # AgenticCodebase Overview
 
 AgenticCodebase compiles source code into a portable `.acb` graph for fast structural queries.

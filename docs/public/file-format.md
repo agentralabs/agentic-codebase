@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # File Format Specification
 
 The `.acb` binary format stores a complete code concept graph in a single file. This document describes the on-disk layout, section structure, and design rationale.

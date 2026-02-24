@@ -1,3 +1,7 @@
+---
+status: stable
+---
+
 # Core Concepts
 
 AgenticCodebase models source code as a **typed concept graph** -- a directed, weighted graph where nodes represent discrete code units and edges capture the semantic relationships between them. This document explains the foundational ideas behind the system.
