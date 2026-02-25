@@ -27,6 +27,7 @@ SERVER_KEY="agentic-codebase"
 INSTALL_DIR="$HOME/.local/bin"
 INSTALL_DIR_EXPLICIT=false
 VERSION="latest"
+VERSION_EXPLICIT=false
 PROFILE="${AGENTRA_INSTALL_PROFILE:-desktop}"
 DRY_RUN=false
 BAR_ONLY="${AGENTRA_INSTALL_BAR_ONLY:-1}"
@@ -43,10 +44,12 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --version=*)
             VERSION="${1#*=}"
+            VERSION_EXPLICIT=true
             shift
             ;;
         --version)
             VERSION="${2:-}"
+            VERSION_EXPLICIT=true
             shift 2
             ;;
         --dir=*)
@@ -229,10 +232,24 @@ download_binary() {
         return 1
     fi
 
-    # Copy both binaries (acb CLI + agentic-codebase-mcp server)
-    cp "${tmpdir}"/agentic-codebase-*/acb "${INSTALL_DIR}/acb" 2>/dev/null || true
-    cp "${tmpdir}"/agentic-codebase-*/${BINARY_NAME} "${INSTALL_DIR}/${BINARY_NAME}"
-    chmod +x "${INSTALL_DIR}/acb" 2>/dev/null || true
+    # Copy both binaries (acb CLI + agentic-codebase-mcp server).
+    # If the release artifact is incomplete, fail and trigger source fallback.
+    local acb_src
+    local mcp_src
+    acb_src="$(find "$tmpdir" -type f -name "acb" | head -n 1)"
+    mcp_src="$(find "$tmpdir" -type f -name "${BINARY_NAME}" | head -n 1)"
+
+    if [ -z "${mcp_src}" ]; then
+        echo "Release artifact missing required binary: ${BINARY_NAME}" >&2
+        rm -rf "$tmpdir"
+        return 1
+    fi
+
+    if [ -n "${acb_src}" ]; then
+        cp "${acb_src}" "${INSTALL_DIR}/acb"
+        chmod +x "${INSTALL_DIR}/acb"
+    fi
+    cp "${mcp_src}" "${INSTALL_DIR}/${BINARY_NAME}"
     chmod +x "${INSTALL_DIR}/${BINARY_NAME}"
     rm -rf "$tmpdir"
     echo "  Installed to ${INSTALL_DIR}/${BINARY_NAME}"
@@ -245,7 +262,7 @@ install_from_source() {
     local git_url="https://github.com/${REPO}.git"
     local cargo_bin="${CARGO_HOME:-$HOME/.cargo}/bin"
     local source_ref_text=""
-    if [ -n "${VERSION:-}" ] && [ "${VERSION}" != "latest" ]; then
+    if [ "${VERSION_EXPLICIT}" = true ] && [ -n "${VERSION:-}" ] && [ "${VERSION}" != "latest" ]; then
         source_ref_text="--tag ${VERSION} "
     fi
 
@@ -261,7 +278,7 @@ install_from_source() {
         exit 1
     fi
 
-    if [ -n "${VERSION:-}" ] && [ "${VERSION}" != "latest" ]; then
+    if [ "${VERSION_EXPLICIT}" = true ] && [ -n "${VERSION:-}" ] && [ "${VERSION}" != "latest" ]; then
         run_with_progress 45 85 "Installing agentic-codebase" \
             cargo install --git "${git_url}" --tag "${VERSION}" --locked --force agentic-codebase
     else
