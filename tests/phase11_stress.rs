@@ -410,10 +410,7 @@ fn test_tool_list_includes_analysis_log() {
     );
 
     let tools = resp["result"]["tools"].as_array().unwrap();
-    let names: Vec<&str> = tools
-        .iter()
-        .filter_map(|t| t["name"].as_str())
-        .collect();
+    let names: Vec<&str> = tools.iter().filter_map(|t| t["name"].as_str()).collect();
 
     assert!(
         names.contains(&"analysis_log"),

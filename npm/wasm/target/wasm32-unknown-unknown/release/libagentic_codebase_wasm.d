@@ -1,0 +1,1 @@
+/Users/omoshola/Documents/agentralabs-tech/agentic-codebase/npm/wasm/target/wasm32-unknown-unknown/release/libagentic_codebase_wasm.rlib: /Users/omoshola/Documents/agentralabs-tech/agentic-codebase/npm/wasm/src/lib.rs
