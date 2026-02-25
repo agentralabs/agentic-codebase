@@ -4,7 +4,7 @@ status: stable
 
 # Rust API Reference
 
-Complete reference for the `agentic_codebase` Rust library (v0.1.0). Install with `cargo add agentic-codebase`.
+Complete reference for the `agentic_codebase` Rust library (v0.2.2). Install with `cargo add agentic-codebase`.
 
 ## Module Structure
 
