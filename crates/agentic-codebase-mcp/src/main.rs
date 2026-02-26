@@ -619,8 +619,9 @@ mod tests {
         let mut reader = Cursor::new(input.as_bytes());
         let mut out = Vec::new();
         let mut server = agentic_codebase::mcp::McpServer::new();
+        let mut ghost: Option<ghost_bridge::GhostBridge> = None;
 
-        run_stdio_loop(&mut reader, &mut out, &mut server);
+        run_stdio_loop(&mut reader, &mut out, &mut server, &mut ghost);
 
         let output = String::from_utf8(out).expect("utf8 output");
         assert!(output.contains("\"id\":1"));
@@ -643,8 +644,9 @@ mod tests {
         let mut reader = Cursor::new(input.into_bytes());
         let mut out = Vec::new();
         let mut server = agentic_codebase::mcp::McpServer::new();
+        let mut ghost: Option<ghost_bridge::GhostBridge> = None;
 
-        run_stdio_loop(&mut reader, &mut out, &mut server);
+        run_stdio_loop(&mut reader, &mut out, &mut server, &mut ghost);
 
         let output = String::from_utf8(out).expect("utf8 output");
         assert!(output.contains("Content-Length:"));
