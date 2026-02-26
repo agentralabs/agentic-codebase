@@ -15,6 +15,8 @@ use std::time::SystemTime;
 use agentic_codebase::engine::compile::{CompileOptions, CompilePipeline};
 use walkdir::WalkDir;
 
+mod ghost_bridge;
+
 #[derive(Parser)]
 #[command(
     name = "agentic-codebase-mcp",
@@ -138,18 +140,22 @@ fn run_stdio(graph_path: Option<&str>, graph_name: Option<String>) {
         }
     }
 
+    // Ghost Writer: sync codebase context to Claude, Cursor, Windsurf, Cody
+    let mut ghost = ghost_bridge::GhostBridge::new();
+
     let stdin = std::io::stdin();
     let stdout = std::io::stdout();
     let mut reader = BufReader::new(stdin.lock());
     let mut stdout = stdout.lock();
 
-    run_stdio_loop(&mut reader, &mut stdout, &mut server);
+    run_stdio_loop(&mut reader, &mut stdout, &mut server, &mut ghost);
 }
 
 fn run_stdio_loop<R: BufRead + Read, W: Write>(
     reader: &mut R,
     writer: &mut W,
     server: &mut agentic_codebase::mcp::McpServer,
+    ghost: &mut Option<ghost_bridge::GhostBridge>,
 ) {
     let mut line = String::new();
     let mut content_length: Option<usize> = None;
@@ -189,6 +195,7 @@ fn run_stdio_loop<R: BufRead + Read, W: Write>(
                 }
                 let raw = String::from_utf8_lossy(&buf).to_string();
                 let response = server.handle_raw(raw.trim());
+                if let Some(ref mut g) = ghost { g.sync(server); }
                 if !response.is_empty() && write_framed(writer, &response).is_err() {
                     break;
                 }
@@ -205,6 +212,7 @@ fn run_stdio_loop<R: BufRead + Read, W: Write>(
         }
 
         let response = server.handle_raw(trimmed);
+        if let Some(ref mut g) = ghost { g.sync(server); }
         if response.is_empty() {
             continue;
         }
