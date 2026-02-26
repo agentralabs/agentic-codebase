@@ -1079,6 +1079,21 @@ fn cmd_compile(
                 cov.total_skipped(),
                 parse_result.stats.files_errored
             );
+            if cov.skipped_unknown_language > 0 && !cov.unsupported_extensions.is_empty() {
+                let mut exts: Vec<_> = cov.unsupported_extensions.iter().collect();
+                exts.sort_by(|a, b| b.1.cmp(a.1));
+                let top: Vec<_> = exts
+                    .iter()
+                    .take(8)
+                    .map(|(ext, count)| format!(".{}({})", ext, count))
+                    .collect();
+                eprintln!(
+                    "  {} Unsupported: {} files [{}]",
+                    s.info(),
+                    cov.skipped_unknown_language,
+                    top.join(", ")
+                );
+            }
             if !parse_result.errors.is_empty() {
                 eprintln!(
                     "  {} {} parse errors (use --verbose to see details)",
@@ -1162,6 +1177,7 @@ fn cmd_compile(
         "files_errored_total": parse_result.stats.files_errored,
         "skip_reasons": {
             "unknown_language": cov.skipped_unknown_language,
+            "unsupported_extensions": cov.unsupported_extensions,
             "language_filter": cov.skipped_language_filter,
             "exclude_pattern": cov.skipped_excluded_pattern,
             "too_large": cov.skipped_too_large,
@@ -1245,6 +1261,21 @@ fn cmd_compile(
                     cov.total_skipped(),
                     parse_result.stats.files_errored
                 );
+                if cov.skipped_unknown_language > 0 && !cov.unsupported_extensions.is_empty() {
+                    let mut exts: Vec<_> = cov.unsupported_extensions.iter().collect();
+                    exts.sort_by(|a, b| b.1.cmp(a.1));
+                    let top: Vec<_> = exts
+                        .iter()
+                        .take(8)
+                        .map(|(ext, count)| format!(".{}({})", ext, count))
+                        .collect();
+                    let _ = writeln!(
+                        out,
+                        "     Unsupported: {} files [{}]",
+                        cov.skipped_unknown_language,
+                        top.join(", ")
+                    );
+                }
                 if let Some(report_path) = coverage_report {
                     let _ = writeln!(
                         out,

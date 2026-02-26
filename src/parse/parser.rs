@@ -11,7 +11,9 @@ use std::time::Instant;
 use crate::types::{AcbError, AcbResult, Language};
 
 use super::cpp::CppParser;
+use super::csharp::CSharpParser;
 use super::go::GoParser;
+use super::java::JavaParser;
 use super::python::PythonParser;
 use super::rust::RustParser;
 use super::treesitter::parse_with_language;
@@ -102,6 +104,8 @@ pub struct ParseCoverageStats {
     pub read_errors: usize,
     /// Files that failed during parser/extractor execution.
     pub parse_errors: usize,
+    /// Extension breakdown of unsupported files (e.g. {"xml": 42, "txt": 10}).
+    pub unsupported_extensions: HashMap<String, usize>,
 }
 
 impl ParseCoverageStats {
@@ -136,6 +140,8 @@ impl Parser {
         parsers.insert(Language::JavaScript, Box::new(TypeScriptParser::new()));
         parsers.insert(Language::Go, Box::new(GoParser::new()));
         parsers.insert(Language::Cpp, Box::new(CppParser::new()));
+        parsers.insert(Language::Java, Box::new(JavaParser::new()));
+        parsers.insert(Language::CSharp, Box::new(CSharpParser::new()));
         Self { parsers }
     }
 
@@ -296,6 +302,12 @@ impl Parser {
             let lang = Language::from_path(path);
             if lang == Language::Unknown {
                 coverage.skipped_unknown_language += 1;
+                if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+                    *coverage
+                        .unsupported_extensions
+                        .entry(ext.to_lowercase())
+                        .or_insert(0) += 1;
+                }
                 continue;
             }
 

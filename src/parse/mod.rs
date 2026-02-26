@@ -4,7 +4,9 @@
 //! No semantic analysis here — just syntax extraction.
 
 pub mod cpp;
+pub mod csharp;
 pub mod go;
+pub mod java;
 pub mod parser;
 pub mod python;
 pub mod rust;
