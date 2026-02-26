@@ -40,7 +40,7 @@ RAG over source files doesn't work. You get "similar text," never *"what breaks 
   **Solved:** `agentic-codebase-mcp` exposes the graph to MCP clients for structured code intelligence.
 
 ```bash
-# Compile any repository (Python, Rust, TypeScript, Go)
+# Compile any repository (Python, Rust, TypeScript, JavaScript, Go, C++, Java, C#)
 acb compile ./my-project -o project.acb --coverage-report coverage.json
 
 # Query it
@@ -49,7 +49,43 @@ acb query project.acb impact --unit-id 42              # What breaks?
 acb query project.acb prophecy --limit 10              # What will break next?
 ```
 
-Four languages. Twenty-four query types. One file holds everything. Sub-microsecond lookups. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
+Eight languages. Twenty-four query types. One file holds everything. Sub-microsecond lookups. Works with Claude Desktop, VS Code, Cursor, Windsurf, and any MCP-compatible client.
+
+### Language Support
+
+| Language | Extensions | Status |
+|:---|:---|:---|
+| Python | `.py` | Full |
+| Rust | `.rs` | Full |
+| TypeScript | `.ts`, `.tsx` | Full |
+| JavaScript | `.js`, `.jsx`, `.mjs` | Full |
+| Go | `.go` | Full |
+| C++ | `.cpp`, `.cc`, `.cxx`, `.h`, `.hpp` | New in v0.2.4 |
+| Java | `.java` | New in v0.2.5 |
+| C# | `.cs` | New in v0.2.6 |
+
+### Ghost Writer
+
+> **New in v0.2.4** -- Auto-syncs codebase context to your AI coding tools.
+
+| Client | Config Location | Status |
+|:---|:---|:---|
+| **Claude Code** | `~/.claude/memory/CODEBASE_CONTEXT.md` | Full support |
+| **Cursor** | `~/.cursor/memory/agentic-codebase.md` | Full support |
+| **Windsurf** | `~/.windsurf/memory/agentic-codebase.md` | Full support |
+| **Cody** | `~/.sourcegraph/cody/memory/agentic-codebase.md` | Full support |
+
+Syncs: loaded graphs, recent symbol lookups, analysis findings. **Zero configuration.**
+
+### Better Skip Messaging
+
+> **New in v0.2.6** -- When files can't be parsed, you now see WHY:
+
+```
+Unsupported: 1913 files [.xml(800), .txt(400), .md(300), ...]
+```
+
+Instead of just `skipped: 1913`.
 
 ### V2: Grounding & Multi-Context Workspaces
 
@@ -269,7 +305,7 @@ AgenticCodebase models source code as a directed graph G = (U, E) where each ver
 ### Compilation Pipeline
 
 ```
-Source Files (Py/Rust/TS/Go)
+Source Files (Py/Rust/TS/JS/Go/C++/Java/C#)
     -> tree-sitter Parse
     -> Semantic Analysis
     -> Graph Builder
@@ -387,7 +423,7 @@ All four share the MCP protocol for seamless AI agent integration. Run all four 
 - **Tests**: 567 (38 unit + 460 integration + 69 V2 stress)
 - **Benchmarks**: 21 Criterion benchmarks
 - **Clippy warnings**: 0
-- **Supported languages**: Python, Rust, TypeScript, Go
+- **Supported languages**: Python, Rust, TypeScript, JavaScript, Go, C++, Java, C#
 
 ## The .acb File
 
