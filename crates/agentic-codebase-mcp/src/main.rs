@@ -151,6 +151,9 @@ fn run_stdio(graph_path: Option<&str>, graph_name: Option<String>) {
     run_stdio_loop(&mut reader, &mut stdout, &mut server, &mut ghost);
 }
 
+/// Hard limit for framed stdio payloads (8 MiB).
+const MAX_CONTENT_LENGTH_BYTES: usize = 8 * 1024 * 1024;
+
 fn run_stdio_loop<R: BufRead + Read, W: Write>(
     reader: &mut R,
     writer: &mut W,
@@ -180,8 +183,17 @@ fn run_stdio_loop<R: BufRead + Read, W: Write>(
         if lower.starts_with("content-length:") {
             let rest = trimmed.split_once(':').map(|(_, rhs)| rhs).unwrap_or("");
             match rest.trim().parse::<usize>() {
-                Ok(n) => content_length = Some(n),
-                Err(_) => content_length = None,
+                Ok(n) if n <= MAX_CONTENT_LENGTH_BYTES => content_length = Some(n),
+                Ok(n) => {
+                    eprintln!(
+                        "Content-Length {n} exceeds max frame size of {MAX_CONTENT_LENGTH_BYTES} bytes"
+                    );
+                    break;
+                }
+                Err(_) => {
+                    eprintln!("Invalid Content-Length header: {trimmed}");
+                    content_length = None;
+                }
             }
             continue;
         }
