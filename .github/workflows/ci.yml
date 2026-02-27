@@ -19,6 +19,8 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
+      - name: Clone agentic-contracts (sibling dependency)
+        run: git clone --depth 1 https://github.com/agentralabs/agentic-contracts.git ../agentic-contracts
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
@@ -41,6 +43,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Clone agentic-contracts (sibling dependency)
+        run: git clone --depth 1 https://github.com/agentralabs/agentic-contracts.git ../agentic-contracts
       - name: Install command guardrails
         run: bash scripts/check-install-commands.sh
       - name: Canonical sister guardrails
