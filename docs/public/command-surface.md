@@ -115,6 +115,8 @@ All tools exposed by the `agentic-codebase-mcp` MCP server:
 |------|---------|
 | `symbol_lookup` | Look up symbols by name in the code graph |
 | `impact_analysis` | Analyse the impact of changing a code unit |
+| `impact_analyze` | Analyze the full impact of a proposed code change with blast radius and risk assessment |
+| `impact_path` | Find the impact path between two code units |
 | `graph_stats` | Get summary statistics about a loaded code graph |
 | `list_units` | List code units in a graph, optionally filtered by type |
 
@@ -124,13 +126,71 @@ All tools exposed by the `agentic-codebase-mcp` MCP server:
 |------|---------|
 | `analysis_log` | Log the intent and context behind a code analysis |
 
+### Search Tools
+
+| Tool | Purpose |
+|------|---------|
+| `search_semantic` | Natural-language semantic search across the codebase |
+| `search_similar` | Find code units similar to a given unit |
+| `search_explain` | Explain why a unit matched a search query |
+
+### Concept Tools
+
+| Tool | Purpose |
+|------|---------|
+| `concept_find` | Find code implementing a concept (e.g., authentication, payment) |
+| `concept_explain` | Explain how a concept is implemented with details |
+| `concept_map` | Map all detected concepts in the codebase |
+
+### Archaeology Tools
+
+| Tool | Purpose |
+|------|---------|
+| `archaeology_node` | Investigate the full history and evolution of a code unit |
+| `archaeology_when` | Get the timeline of changes for a code unit |
+| `archaeology_why` | Explain why code looks the way it does based on its history |
+
+### Architecture Tools
+
+| Tool | Purpose |
+|------|---------|
+| `architecture_infer` | Infer the architecture pattern of the codebase |
+| `architecture_validate` | Validate the codebase against its inferred architecture |
+
+### Pattern Tools
+
+| Tool | Purpose |
+|------|---------|
+| `pattern_extract` | Extract all detected patterns from the codebase |
+| `pattern_check` | Check a code unit against detected patterns for violations |
+| `pattern_suggest` | Suggest patterns for new code based on file location |
+
+### Prophecy Tools
+
+| Tool | Purpose |
+|------|---------|
+| `prophecy` | Predict the future of a code unit based on history, complexity, and dependencies |
+| `prophecy_if` | What-if scenario: predict impact of a hypothetical change |
+
+### Regression Tools
+
+| Tool | Purpose |
+|------|---------|
+| `regression_predict` | Predict which tests are most likely affected by a change |
+| `regression_minimal` | Get the minimal test set needed for a change |
+
 ### Grounding Tools (v0.2)
 
 | Tool | Purpose |
 |------|---------|
 | `codebase_ground` | Verify a code claim has graph evidence — zero hallucination |
+| `codebase_ground_claim` | Ground a claim with full citations including file locations and code snippets |
 | `codebase_evidence` | Get graph evidence for a symbol name |
 | `codebase_suggest` | Find symbols similar to a name (for corrections) |
+| `codebase_cite` | Get a citation for a specific code unit |
+| `hallucination_check` | Check AI-generated output for hallucinations about code |
+| `truth_register` | Register a truth claim for ongoing maintenance |
+| `truth_check` | Check if a registered truth is still valid |
 
 ### Workspace Tools (v0.2)
 
@@ -142,6 +202,9 @@ All tools exposed by the `agentic-codebase-mcp` MCP server:
 | `workspace_query` | Search across all codebases in workspace |
 | `workspace_compare` | Compare a symbol between source and target |
 | `workspace_xref` | Find where symbol exists/doesn't exist across contexts |
+| `compare_codebases` | Full structural, conceptual, and pattern comparison between two codebases |
+| `compare_concept` | Compare how a concept is implemented across two codebases |
+| `compare_migrate` | Generate a migration plan from source to target codebase |
 
 ### Translation Tools (v0.2)
 
