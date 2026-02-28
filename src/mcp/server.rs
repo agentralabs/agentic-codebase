@@ -227,6 +227,15 @@ impl McpServer {
 
     /// Handle "tools/list".
     fn handle_tools_list(&self, id: Value) -> JsonRpcResponse {
+        if mcp_tool_surface_is_compact() {
+            return JsonRpcResponse::success(
+                id,
+                json!({
+                    "tools": compact_tool_definitions()
+                }),
+            );
+        }
+
         JsonRpcResponse::success(
             id,
             json!({
@@ -892,8 +901,8 @@ impl McpServer {
             self.try_lazy_load();
         }
 
-        let tool_name = match params.get("name").and_then(|v| v.as_str()) {
-            Some(name) => name,
+        let requested_tool_name = match params.get("name").and_then(|v| v.as_str()) {
+            Some(name) => name.to_string(),
             None => {
                 return JsonRpcResponse::error(
                     id,
@@ -907,7 +916,15 @@ impl McpServer {
             .cloned()
             .unwrap_or(Value::Object(serde_json::Map::new()));
 
-        let result = match tool_name {
+        let (tool_name, arguments) =
+            match normalize_compact_tool_call(&requested_tool_name, arguments) {
+                Ok(mapped) => mapped,
+                Err(message) => {
+                    return JsonRpcResponse::error(id, JsonRpcError::invalid_params(message));
+                }
+            };
+
+        let result = match tool_name.as_str() {
             "symbol_lookup" => self.tool_symbol_lookup(id.clone(), &arguments),
             "impact_analysis" => self.tool_impact_analysis(id.clone(), &arguments),
             "graph_stats" => self.tool_graph_stats(id.clone(), &arguments),
@@ -1039,7 +1056,7 @@ impl McpServer {
                 .and_then(|v| v.as_str())
                 .map(String::from);
             self.operation_log.push(OperationRecord {
-                tool_name: tool_name.to_string(),
+                tool_name,
                 summary,
                 timestamp: now,
                 graph_name,
@@ -4077,6 +4094,328 @@ impl McpServer {
             json!({"content": [{"type": "text", "text": serde_json::to_string_pretty(&json!({"problem": problem, "count": sols.len(), "solutions": sols})).unwrap_or_default()}]}),
         )
     }
+}
+
+fn mcp_tool_surface_is_compact() -> bool {
+    read_env_string_any(&["ACB_MCP_TOOL_SURFACE", "MCP_TOOL_SURFACE"])
+        .map(|value| value.trim().eq_ignore_ascii_case("compact"))
+        .unwrap_or(false)
+}
+
+fn compact_op_schema(ops: &[&str], description: &str) -> Value {
+    json!({
+        "type": "object",
+        "required": ["operation"],
+        "properties": {
+            "operation": {
+                "type": "string",
+                "enum": ops,
+                "description": description
+            },
+            "params": {
+                "type": "object",
+                "description": "Arguments for the selected operation"
+            }
+        }
+    })
+}
+
+fn compact_tool_definitions() -> Vec<Value> {
+    vec![
+        json!({
+            "name": "codebase_core",
+            "description": "Compact core facade for analysis and impact operations",
+            "inputSchema": compact_op_schema(&[
+                "analysis_log",
+                "symbol_lookup",
+                "impact_analysis",
+                "impact_analyze",
+                "impact_path",
+                "graph_stats",
+                "list_units"
+            ], "Core codebase operation")
+        }),
+        json!({
+            "name": "codebase_grounding",
+            "description": "Compact grounding facade",
+            "inputSchema": compact_op_schema(&[
+                "codebase_ground",
+                "codebase_evidence",
+                "codebase_suggest",
+                "codebase_ground_claim",
+                "codebase_cite",
+                "hallucination_check",
+                "truth_register",
+                "truth_check"
+            ], "Grounding operation")
+        }),
+        json!({
+            "name": "codebase_workspace",
+            "description": "Compact workspace facade",
+            "inputSchema": compact_op_schema(&[
+                "workspace_create",
+                "workspace_add",
+                "workspace_list",
+                "workspace_query",
+                "workspace_compare",
+                "workspace_xref",
+                "compare_codebases",
+                "compare_concept",
+                "compare_migrate"
+            ], "Workspace operation")
+        }),
+        json!({
+            "name": "codebase_session",
+            "description": "Compact session facade",
+            "inputSchema": compact_op_schema(&[
+                "session_start",
+                "session_end",
+                "codebase_session_resume"
+            ], "Session operation")
+        }),
+        json!({
+            "name": "codebase_conceptual",
+            "description": "Compact concept/architecture/search facade",
+            "inputSchema": compact_op_schema(&[
+                "concept_find",
+                "concept_map",
+                "concept_explain",
+                "architecture_infer",
+                "architecture_validate",
+                "search_semantic",
+                "search_similar",
+                "search_explain"
+            ], "Conceptual operation")
+        }),
+        json!({
+            "name": "codebase_translation",
+            "description": "Compact translation facade",
+            "inputSchema": compact_op_schema(&[
+                "translation_record",
+                "translation_progress",
+                "translation_remaining"
+            ], "Translation operation")
+        }),
+        json!({
+            "name": "codebase_archaeology",
+            "description": "Compact archaeology and resurrection facade",
+            "inputSchema": compact_op_schema(&[
+                "archaeology_node",
+                "archaeology_when",
+                "archaeology_why",
+                "resurrect_search",
+                "resurrect_attempt",
+                "resurrect_verify",
+                "resurrect_history"
+            ], "Archaeology operation")
+        }),
+        json!({
+            "name": "codebase_patterns",
+            "description": "Compact pattern and genetics facade",
+            "inputSchema": compact_op_schema(&[
+                "pattern_extract",
+                "pattern_check",
+                "pattern_suggest",
+                "genetics_dna",
+                "genetics_lineage",
+                "genetics_mutations",
+                "genetics_diseases"
+            ], "Pattern operation")
+        }),
+        json!({
+            "name": "codebase_collective",
+            "description": "Compact telepathy and soul facade",
+            "inputSchema": compact_op_schema(&[
+                "telepathy_connect",
+                "telepathy_broadcast",
+                "telepathy_listen",
+                "telepathy_consensus",
+                "soul_extract",
+                "soul_compare",
+                "soul_preserve",
+                "soul_reincarnate",
+                "soul_karma"
+            ], "Collective operation")
+        }),
+        json!({
+            "name": "codebase_intelligence",
+            "description": "Compact prophecy, regression, and omniscience facade",
+            "inputSchema": compact_op_schema(&[
+                "prophecy",
+                "prophecy_if",
+                "regression_predict",
+                "regression_minimal",
+                "omniscience_search",
+                "omniscience_best",
+                "omniscience_census",
+                "omniscience_vuln",
+                "omniscience_trend",
+                "omniscience_compare",
+                "omniscience_api_usage",
+                "omniscience_solve"
+            ], "Intelligence operation")
+        }),
+    ]
+}
+
+fn decode_compact_operation(args: Value) -> Result<(String, Value), String> {
+    let obj = args
+        .as_object()
+        .ok_or_else(|| "arguments must be an object".to_string())?;
+
+    let operation = obj
+        .get("operation")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "'operation' is required".to_string())?
+        .to_string();
+
+    if let Some(params) = obj.get("params") {
+        return Ok((operation, params.clone()));
+    }
+
+    let mut passthrough = obj.clone();
+    passthrough.remove("operation");
+    Ok((operation, Value::Object(passthrough)))
+}
+
+fn resolve_compact_tool(group: &str, operation: &str) -> Option<String> {
+    let allowed = match group {
+        "codebase_core" => matches!(
+            operation,
+            "analysis_log"
+                | "symbol_lookup"
+                | "impact_analysis"
+                | "impact_analyze"
+                | "impact_path"
+                | "graph_stats"
+                | "list_units"
+        ),
+        "codebase_grounding" => matches!(
+            operation,
+            "codebase_ground"
+                | "codebase_evidence"
+                | "codebase_suggest"
+                | "codebase_ground_claim"
+                | "codebase_cite"
+                | "hallucination_check"
+                | "truth_register"
+                | "truth_check"
+        ),
+        "codebase_workspace" => matches!(
+            operation,
+            "workspace_create"
+                | "workspace_add"
+                | "workspace_list"
+                | "workspace_query"
+                | "workspace_compare"
+                | "workspace_xref"
+                | "compare_codebases"
+                | "compare_concept"
+                | "compare_migrate"
+        ),
+        "codebase_session" => {
+            matches!(
+                operation,
+                "session_start" | "session_end" | "codebase_session_resume"
+            )
+        }
+        "codebase_conceptual" => matches!(
+            operation,
+            "concept_find"
+                | "concept_map"
+                | "concept_explain"
+                | "architecture_infer"
+                | "architecture_validate"
+                | "search_semantic"
+                | "search_similar"
+                | "search_explain"
+        ),
+        "codebase_translation" => matches!(
+            operation,
+            "translation_record" | "translation_progress" | "translation_remaining"
+        ),
+        "codebase_archaeology" => matches!(
+            operation,
+            "archaeology_node"
+                | "archaeology_when"
+                | "archaeology_why"
+                | "resurrect_search"
+                | "resurrect_attempt"
+                | "resurrect_verify"
+                | "resurrect_history"
+        ),
+        "codebase_patterns" => matches!(
+            operation,
+            "pattern_extract"
+                | "pattern_check"
+                | "pattern_suggest"
+                | "genetics_dna"
+                | "genetics_lineage"
+                | "genetics_mutations"
+                | "genetics_diseases"
+        ),
+        "codebase_collective" => matches!(
+            operation,
+            "telepathy_connect"
+                | "telepathy_broadcast"
+                | "telepathy_listen"
+                | "telepathy_consensus"
+                | "soul_extract"
+                | "soul_compare"
+                | "soul_preserve"
+                | "soul_reincarnate"
+                | "soul_karma"
+        ),
+        "codebase_intelligence" => matches!(
+            operation,
+            "prophecy"
+                | "prophecy_if"
+                | "regression_predict"
+                | "regression_minimal"
+                | "omniscience_search"
+                | "omniscience_best"
+                | "omniscience_census"
+                | "omniscience_vuln"
+                | "omniscience_trend"
+                | "omniscience_compare"
+                | "omniscience_api_usage"
+                | "omniscience_solve"
+        ),
+        _ => return None,
+    };
+
+    if allowed {
+        Some(operation.to_string())
+    } else {
+        None
+    }
+}
+
+fn normalize_compact_tool_call(
+    requested_tool_name: &str,
+    arguments: Value,
+) -> Result<(String, Value), String> {
+    if !matches!(
+        requested_tool_name,
+        "codebase_core"
+            | "codebase_grounding"
+            | "codebase_workspace"
+            | "codebase_session"
+            | "codebase_conceptual"
+            | "codebase_translation"
+            | "codebase_archaeology"
+            | "codebase_patterns"
+            | "codebase_collective"
+            | "codebase_intelligence"
+    ) {
+        return Ok((requested_tool_name.to_string(), arguments));
+    }
+
+    let (operation, params) = decode_compact_operation(arguments)?;
+    let resolved = resolve_compact_tool(requested_tool_name, &operation)
+        .ok_or_else(|| format!("Unknown {requested_tool_name} operation: {operation}"))?;
+
+    Ok((resolved, params))
 }
 
 /// Truncate a JSON value to a short summary string.

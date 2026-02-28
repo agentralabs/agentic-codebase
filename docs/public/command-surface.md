@@ -214,6 +214,31 @@ All tools exposed by the `agentic-codebase-mcp` MCP server:
 | `translation_progress` | Get migration progress statistics |
 | `translation_remaining` | List symbols not yet ported |
 
+### Compact Facade Tools (v0.3+)
+
+Use these to keep MCP tool surfaces small while preserving backward compatibility:
+
+| Tool | Purpose |
+|------|---------|
+| `codebase_core` | Unified core analysis/impact operations via `operation` |
+| `codebase_grounding` | Unified grounding operations via `operation` |
+| `codebase_workspace` | Unified workspace/compare operations via `operation` |
+| `codebase_session` | Unified session operations via `operation` |
+| `codebase_conceptual` | Unified concept/architecture/search operations via `operation` |
+| `codebase_translation` | Unified translation operations via `operation` |
+| `codebase_archaeology` | Unified archaeology/resurrection operations via `operation` |
+| `codebase_patterns` | Unified pattern/genetics operations via `operation` |
+| `codebase_collective` | Unified telepathy/soul operations via `operation` |
+| `codebase_intelligence` | Unified prophecy/regression/omniscience operations via `operation` |
+
+Compact list mode:
+
+```bash
+export ACB_MCP_TOOL_SURFACE=compact
+```
+
+In compact mode, `tools/list` returns only the 10 facade tools above, while all legacy tool names remain callable.
+
 ### Advanced Tools
 
 #### Resurrection Tools
