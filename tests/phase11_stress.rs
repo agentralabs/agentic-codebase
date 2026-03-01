@@ -431,8 +431,8 @@ fn test_tool_count_is_17() {
     let tools = resp["result"]["tools"].as_array().unwrap();
     assert_eq!(
         tools.len(),
-        70,
-        "Should have 70 tools (17 original + 28 invention 1-12 + 25 invention 13-17 tools)"
+        73,
+        "Should have 73 tools (current registry surface)"
     );
 }
 
