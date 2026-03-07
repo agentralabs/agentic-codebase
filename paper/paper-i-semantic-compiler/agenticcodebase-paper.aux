@@ -1,0 +1,148 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{treesitter2018}
+\citation{mcp2024}
+\citation{criterion2023}
+\citation{copilot2021}
+\citation{cursor2024}
+\citation{claudecode2025}
+\citation{lsp2024}
+\citation{collet2013lz4}
+\citation{git2005}
+\citation{lsp2024}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
+\citation{treesitter2018}
+\citation{copilot2021}
+\citation{cursor2024}
+\citation{claudecode2025}
+\citation{codeql2016}
+\citation{semgrep2020}
+\citation{sourcegraph2018}
+\citation{feng2020codebert}
+\citation{guo2021graphcodebert}
+\citation{owolabi2025agenticmemory}
+\citation{lsp2024}
+\citation{treesitter2018}
+\citation{codeql2016}
+\citation{sourcegraph2018}
+\citation{feng2020codebert}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Comparison of code comprehension paradigms. (a)~Traditional tools present a flat file listing with no relational structure; the agent cannot determine how files interact or which modules historically co-change. (b)~AgenticCodebase produces a connected concept graph with cross-language edges, temporal coupling edges (dashed), and prophecy risk assessments.}}{2}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:comparison}{{1}{2}{Comparison of code comprehension paradigms. (a)~Traditional tools present a flat file listing with no relational structure; the agent cannot determine how files interact or which modules historically co-change. (b)~AgenticCodebase produces a connected concept graph with cross-language edges, temporal coupling edges (dashed), and prophecy risk assessments}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Background and Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Architecture}{2}{section.3}\protected@file@percent }
+\newlabel{sec:architecture}{{3}{2}{Architecture}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Code Units}{2}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:units}{{3.1}{2}{Code Units}{subsection.3.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Comparison of code intelligence systems across key dimensions.}}{3}{table.caption.3}\protected@file@percent }
+\newlabel{tab:related}{{1}{3}{Comparison of code intelligence systems across key dimensions}{table.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The 13 code unit types in AgenticCodebase, grouped by category. Types are distinguished by a single byte in the binary format.}}{3}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:taxonomy}{{2}{3}{The 13 code unit types in AgenticCodebase, grouped by category. Types are distinguished by a single byte in the binary format}{figure.caption.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces CodeUnit types with discriminant values.}}{3}{table.caption.5}\protected@file@percent }
+\newlabel{tab:unittypes}{{2}{3}{CodeUnit types with discriminant values}{table.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Typed Edges}{3}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:edges}{{3.2}{3}{Typed Edges}{subsection.3.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Example subgraph showing a Module containing a Function, a cross-language \textsc  {Calls} edge, a \textsc  {Tests} edge from a test node, and a temporal \textsc  {CouplesWith} prediction with stability score $s = 0.28$ (unstable). Edge colors indicate relationship categories.}}{3}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:subgraph}{{3}{3}{Example subgraph showing a Module containing a Function, a cross-language \textsc {Calls} edge, a \textsc {Tests} edge from a test node, and a temporal \textsc {CouplesWith} prediction with stability score $s = 0.28$ (unstable). Edge colors indicate relationship categories}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}The Compilation Pipeline}{3}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:pipeline}{{3.3}{3}{The Compilation Pipeline}{subsection.3.3}{}}
+\citation{collet2013lz4}
+\citation{protobuf2008}
+\citation{flatbuffers2014}
+\citation{capnproto2013}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Edge types with discriminant values.}}{4}{table.caption.7}\protected@file@percent }
+\newlabel{tab:edgetypes}{{3}{4}{Edge types with discriminant values}{table.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Compilation pipeline. Source files are parsed via tree-sitter, semantically analyzed, assembled into a typed graph, and serialized to the \texttt  {.acb}\xspace  binary format with LZ4-compressed string pools.}}{4}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:pipeline}{{4}{4}{Compilation pipeline. Source files are parsed via tree-sitter, semantically analyzed, assembled into a typed graph, and serialized to the \acbfile binary format with LZ4-compressed string pools}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}The Binary File Format (\texttt  {.acb}\xspace  )}{4}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:format}{{3.4}{4}{The Binary File Format (\acbfile )}{subsection.3.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}The Query Engine}{4}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:queryengine}{{3.5}{4}{The Query Engine}{subsection.3.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Collective Intelligence Layer}{4}{subsection.3.6}\protected@file@percent }
+\newlabel{sec:collective}{{3.6}{4}{Collective Intelligence Layer}{subsection.3.6}{}}
+\citation{git2005}
+\citation{mcp2024}
+\citation{jsonrpc2013}
+\citation{criterion2023}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Layout of the \texttt  {.acb}\xspace  binary file format. The header stores section offsets enabling direct random access. Unit and edge records are fixed-size for $O(1)$ indexing. The string pool is LZ4-compressed to reduce repetitive qualified-name storage.}}{5}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:layout}{{5}{5}{Layout of the \acbfile binary file format. The header stores section offsets enabling direct random access. Unit and edge records are fixed-size for $O(1)$ indexing. The string pool is LZ4-compressed to reduce repetitive qualified-name storage}{figure.caption.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Query engine: 24 query types across three tiers.}}{5}{table.caption.10}\protected@file@percent }
+\newlabel{tab:queries}{{4}{5}{Query engine: 24 query types across three tiers}{table.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Collective intelligence architecture. Local analyses produce deltas that are privacy-filtered before storage. Offline mode accumulates patterns locally for opportunistic synchronization.}}{5}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:collective}{{6}{5}{Collective intelligence architecture. Local analyses produce deltas that are privacy-filtered before storage. Offline mode accumulates patterns locally for opportunistic synchronization}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Code Prophecy Engine}{5}{subsection.3.7}\protected@file@percent }
+\newlabel{sec:prophecy}{{3.7}{5}{Code Prophecy Engine}{subsection.3.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.8}MCP Server Interface}{5}{subsection.3.8}\protected@file@percent }
+\newlabel{sec:mcp}{{3.8}{5}{MCP Server Interface}{subsection.3.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Graph construction performance (Criterion, release mode).}}{6}{table.caption.12}\protected@file@percent }
+\newlabel{tab:construction}{{5}{6}{Graph construction performance (Criterion, release mode)}{table.caption.12}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Binary format I/O performance.}}{6}{table.caption.13}\protected@file@percent }
+\newlabel{tab:io}{{6}{6}{Binary format I/O performance}{table.caption.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Evaluation}{6}{section.4}\protected@file@percent }
+\newlabel{sec:evaluation}{{4}{6}{Evaluation}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Benchmark Setup}{6}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Graph Construction Performance}{6}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}I/O Performance}{6}{subsection.4.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Query latency on a 10{,}000-unit graph (Apple M4 Pro, release mode).}}{6}{table.caption.14}\protected@file@percent }
+\newlabel{tab:query}{{7}{6}{Query latency on a 10{,}000-unit graph (Apple M4 Pro, release mode)}{table.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Query latency on a 10{,}000-unit graph (log scale). Graph traversal queries complete in under 2\,$\mu $s. Symbol lookup scales with match complexity: exact is 14\,$\mu $s, contains requires a full scan at 326\,$\mu $s.}}{6}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:querylat}{{7}{6}{Query latency on a 10{,}000-unit graph (log scale). Graph traversal queries complete in under 2\,$\mu $s. Symbol lookup scales with match complexity: exact is 14\,$\mu $s, contains requires a full scan at 326\,$\mu $s}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Query Performance}{6}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Index Construction and Query}{6}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}String Pool Performance}{6}{subsection.4.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Index build and query performance (10{,}000 units).}}{7}{table.caption.16}\protected@file@percent }
+\newlabel{tab:index}{{8}{7}{Index build and query performance (10{,}000 units)}{table.caption.16}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Scaling factors from 1K to 10K units.}}{7}{table.caption.17}\protected@file@percent }
+\newlabel{tab:scaling}{{9}{7}{Scaling factors from 1K to 10K units}{table.caption.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Scaling Analysis}{7}{subsection.4.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.8}Prediction Accuracy}{7}{subsection.4.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.9}Comparison with Existing Tools}{7}{subsection.4.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.10}Implementation Statistics}{7}{subsection.4.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{7}{section.5}\protected@file@percent }
+\newlabel{sec:discussion}{{5}{7}{Discussion}{section.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Core operation scaling on log--log axes. All three operations track the linear reference line, confirming $O(n)$ complexity.}}{7}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:scaling}{{8}{7}{Core operation scaling on log--log axes. All three operations track the linear reference line, confirming $O(n)$ complexity}{figure.caption.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Prophecy engine accuracy on synthetic data.}}{7}{table.caption.19}\protected@file@percent }
+\newlabel{tab:prophecy}{{10}{7}{Prophecy engine accuracy on synthetic data}{table.caption.19}{}}
+\citation{owolabi2025agenticmemory}
+\citation{owolabi2025agenticvision}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Comparison with existing code intelligence tools.}}{8}{table.caption.20}\protected@file@percent }
+\newlabel{tab:toolcomp}{{11}{8}{Comparison with existing code intelligence tools}{table.caption.20}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Implementation statistics.}}{8}{table.caption.21}\protected@file@percent }
+\newlabel{tab:implstats}{{12}{8}{Implementation statistics}{table.caption.21}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Integration with AgenticMemory}{8}{section.6}\protected@file@percent }
+\newlabel{sec:memory}{{6}{8}{Integration with AgenticMemory}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Radar chart comparing AgenticCodebase against LSP and Sourcegraph across six dimensions. AgenticCodebase provides the only complete coverage across temporal, predictive, and AI-native dimensions.}}{8}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:radar}{{9}{8}{Radar chart comparing AgenticCodebase against LSP and Sourcegraph across six dimensions. AgenticCodebase provides the only complete coverage across temporal, predictive, and AI-native dimensions}{figure.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Unified agent architecture. The AI agent communicates with both AgenticCodebase (code understanding) and AgenticMemory (general knowledge) through MCP, with a bridge layer connecting code entities to memory facts.}}{8}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:agentarch}{{10}{8}{Unified agent architecture. The AI agent communicates with both AgenticCodebase (code understanding) and AgenticMemory (general knowledge) through MCP, with a bridge layer connecting code entities to memory facts}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{8}{section.7}\protected@file@percent }
+\newlabel{sec:conclusion}{{7}{8}{Conclusion}{section.7}{}}
+\bibstyle{plain}
+\bibdata{references}
+\bibcite{mcp2024}{1}
+\bibcite{claudecode2025}{2}
+\bibcite{codeql2016}{3}
+\bibcite{treesitter2018}{4}
+\bibcite{copilot2021}{5}
+\bibcite{collet2013lz4}{6}
+\bibcite{cursor2024}{7}
+\bibcite{feng2020codebert}{8}
+\bibcite{protobuf2008}{9}
+\bibcite{guo2021graphcodebert}{10}
+\bibcite{criterion2023}{11}
+\bibcite{jsonrpc2013}{12}
+\bibcite{lsp2024}{13}
+\bibcite{owolabi2025agenticmemory}{14}
+\bibcite{owolabi2025agenticvision}{15}
+\bibcite{semgrep2020}{16}
+\bibcite{sourcegraph2018}{17}
+\bibcite{git2005}{18}
+\bibcite{flatbuffers2014}{19}
+\bibcite{capnproto2013}{20}
+\@writefile{toc}{\contentsline {paragraph}{Availability.}{9}{section*.24}\protected@file@percent }
+\gdef \@abspage@last{9}

@@ -1,0 +1,111 @@
+\begin{thebibliography}{10}
+
+\bibitem{mcp2024}
+Anthropic.
+\newblock Model context protocol specification.
+\newblock \url{https://modelcontextprotocol.io/}, 2024.
+
+\bibitem{claudecode2025}
+Anthropic.
+\newblock Claude code: An agentic coding tool.
+\newblock \url{https://docs.anthropic.com/en/docs/claude-code}, 2025.
+
+\bibitem{codeql2016}
+Pavel Avgustinov, Oege de~Moor, Michael~Peyton Jones, and Max Sherr.
+\newblock {QL}: Object-oriented queries on relational data.
+\newblock In {\em Proc.\ ECOOP}, 2016.
+
+\bibitem{treesitter2018}
+Max Brunsfeld et~al.
+\newblock tree-sitter: An incremental parsing system for programming tools.
+\newblock \url{https://tree-sitter.github.io/tree-sitter/}, 2018.
+
+\bibitem{copilot2021}
+Mark Chen, Jerry Tworek, Heewoo Jun, et~al.
+\newblock Evaluating large language models trained on code.
+\newblock {\em arXiv preprint arXiv:2107.03374}, 2021.
+
+\bibitem{collet2013lz4}
+Yann Collet.
+\newblock {LZ4}: Extremely fast compression.
+\newblock \url{https://lz4.github.io/lz4/}, 2011.
+
+\bibitem{cursor2024}
+{Cursor, Inc.}
+\newblock Cursor: The {AI}-first code editor.
+\newblock \url{https://cursor.sh/}, 2024.
+
+\bibitem{feng2020codebert}
+Zhangyin Feng, Daya Guo, Duyu Tang, Nan Duan, Xiaocheng Feng, Ming Gong, Linjun
+  Shou, Bing Qin, Ting Liu, Daxin Jiang, and Ming Zhou.
+\newblock {CodeBERT}: A pre-trained model for programming and natural
+  languages.
+\newblock In {\em Findings of EMNLP}, pages 1536--1547, 2020.
+
+\bibitem{protobuf2008}
+Google.
+\newblock Protocol buffers: Language-neutral, platform-neutral extensible
+  mechanisms for serializing structured data.
+\newblock \url{https://protobuf.dev/}, 2008.
+
+\bibitem{guo2021graphcodebert}
+Daya Guo, Shuo Ren, Shuai Lu, Zhangyin Feng, Duyu Tang, Shujie Liu, Long Zhou,
+  Nan Duan, Alexey Svyatkovskiy, Shengyu Fu, Michele Tufano, Shao~Kun Deng,
+  Colin Clement, Dawn Drain, Neel Sundaresan, Jian Yin, Daxin Jiang, and Ming
+  Zhou.
+\newblock {GraphCodeBERT}: Pre-training code representations with data flow.
+\newblock In {\em Proc.\ ICLR}, 2021.
+
+\bibitem{criterion2023}
+Jorge Heiss and Brook Brook.
+\newblock Criterion.rs: Statistics-driven micro-benchmarking in {Rust}.
+\newblock \url{https://github.com/bheisler/criterion.rs}, 2023.
+
+\bibitem{jsonrpc2013}
+{JSON-RPC Working Group}.
+\newblock {JSON-RPC} 2.0 specification.
+\newblock \url{https://www.jsonrpc.org/specification}, 2013.
+
+\bibitem{lsp2024}
+Microsoft.
+\newblock Language server protocol specification -- 3.17.
+\newblock \url{https://microsoft.github.io/language-server-protocol/}, 2024.
+
+\bibitem{owolabi2025agenticmemory}
+Omoshola Owolabi.
+\newblock {AgenticMemory}: A binary graph format for persistent, portable, and
+  navigable {AI} agent memory.
+\newblock Technical report, Independent Researcher, 2025.
+
+\bibitem{owolabi2025agenticvision}
+Omoshola Owolabi.
+\newblock {AgenticVision-MCP}: Persistent visual memory for {AI} agents via the
+  model context protocol.
+\newblock Technical report, Independent Researcher, 2026.
+
+\bibitem{semgrep2020}
+{Return To Corp}.
+\newblock Semgrep: Lightweight static analysis for many languages.
+\newblock \url{https://semgrep.dev/}, 2020.
+
+\bibitem{sourcegraph2018}
+{Sourcegraph, Inc.}
+\newblock Sourcegraph: Universal code search.
+\newblock \url{https://sourcegraph.com/}, 2018.
+
+\bibitem{git2005}
+Linus Torvalds.
+\newblock {Git}: A distributed version control system.
+\newblock \url{https://git-scm.com/}, 2005.
+
+\bibitem{flatbuffers2014}
+Wouter van Oortmerssen.
+\newblock {FlatBuffers}: Memory efficient serialization library.
+\newblock \url{https://flatbuffers.dev/}, 2014.
+
+\bibitem{capnproto2013}
+Kenton Varda.
+\newblock {Cap'n Proto}: Insanely fast data interchange format.
+\newblock \url{https://capnproto.org/}, 2013.
+
+\end{thebibliography}

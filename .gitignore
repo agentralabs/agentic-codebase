@@ -1,62 +1,30 @@
 # Rust
-/target/
-**/target/
-**/*.rs.bk
+target/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.fleet/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# IDE
-.idea/
-.vscode/
 *.swp
-*.swo
 *~
-
-# Environment
-.env
-.env.local
-
-# LaTeX
-*.aux
-*.bbl
-*.blg
-*.log
-*.out
-*.toc
-*.fls
-*.fdb_latexmk
-*.synctex.gz
-
-# Python
-__pycache__/
-*.pyc
-.pytest_cache/
-*.egg-info/
-dist/
-build/
-.venv/
-
-# Test artifacts
-*.tmp
-*.bak
-
-# Planning docs build artifacts
-planning-docs/_build/
-planning-docs/.cache/
-
-# Internal docs / AI planning / prompt artifacts (do not publish)
-planning-docs/
-docs/internal/
-CLAUDE-CODE-INSTRUCTIONS*.md
-SPEC-*.md
-.claude/
-
-# Local runtime state
-.agentra/
-docs/REPO_HYGIENE.md
-ECOSYSTEM-CONVENTIONS.md
-
-# Local goals (internal only)
-goals/
