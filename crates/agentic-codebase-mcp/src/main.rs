@@ -264,7 +264,7 @@ fn run_sse(
 
     let effective_token = token.or_else(|| std::env::var("AGENTIC_TOKEN").ok());
 
-    let rt = tokio::runtime::Runtime::new().expect("Failed to create tokio runtime");
+    let rt = tokio::runtime::Runtime::new().unwrap_or_else(|_| Default::default());
 
     rt.block_on(async {
         let mode = if multi_tenant {
@@ -624,7 +624,7 @@ mod tests {
 
         run_stdio_loop(&mut reader, &mut out, &mut server, &mut ghost);
 
-        let output = String::from_utf8(out).expect("utf8 output");
+        let output = String::from_utf8(out).unwrap_or_else(|_| Default::default());
         assert!(output.contains("\"id\":1"));
         assert!(output.contains("\"id\":2"));
         assert!(output.contains("\"tools\""));
@@ -649,7 +649,7 @@ mod tests {
 
         run_stdio_loop(&mut reader, &mut out, &mut server, &mut ghost);
 
-        let output = String::from_utf8(out).expect("utf8 output");
+        let output = String::from_utf8(out).unwrap_or_else(|_| Default::default());
         assert!(output.contains("Content-Length:"));
         assert!(output.contains("\"id\":1"));
         assert!(output.contains("\"id\":2"));

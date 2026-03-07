@@ -19,6 +19,31 @@ use crate::workspace::{ContextRole, TranslationMap, TranslationStatus, Workspace
 
 use super::protocol::{JsonRpcError, JsonRpcRequest, JsonRpcResponse};
 
+/// Inject token conservation parameters into every tool's inputSchema.
+fn inject_token_conservation_params(tools: &mut Vec<Value>) {
+    let conservation_props = json!({
+        "include_content": { "type": "boolean", "default": false, "description": "Return full content (default: IDs only)" },
+        "intent": { "type": "string", "enum": ["exists", "ids", "summary", "fields", "full"], "description": "Extraction intent level" },
+        "since": { "type": "integer", "description": "Only return changes since this Unix timestamp" },
+        "token_budget": { "type": "integer", "description": "Maximum token budget for response" },
+        "max_results": { "type": "integer", "default": 10, "description": "Maximum number of results" },
+        "cursor": { "type": "string", "description": "Pagination cursor for next page" }
+    });
+    for tool in tools.iter_mut() {
+        if let Some(schema) = tool.get_mut("inputSchema") {
+            if let Some(props) = schema.get_mut("properties") {
+                if let Some(props_obj) = props.as_object_mut() {
+                    if let Some(conservation_obj) = conservation_props.as_object() {
+                        for (k, v) in conservation_obj {
+                            props_obj.entry(k.clone()).or_insert_with(|| v.clone());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// MCP server capability information.
 const SERVER_NAME: &str = "agentic-codebase";
 /// MCP server version.
@@ -236,10 +261,7 @@ impl McpServer {
             );
         }
 
-        JsonRpcResponse::success(
-            id,
-            json!({
-                "tools": [
+        let mut tools_array = json!([
                     {
                         "name": "symbol_lookup",
                         "description": "Look up symbols by name in the code graph",
@@ -889,7 +911,14 @@ impl McpServer {
                     { "name": "omniscience_compare", "description": "Compare your code to global best practices", "inputSchema": { "type": "object", "properties": { "graph": { "type": "string", "description": "Graph name" }, "unit_id": { "type": "integer", "description": "Code unit ID to compare" } }, "required": ["unit_id"] } },
                     { "name": "omniscience_api_usage", "description": "Find all usages of an API globally", "inputSchema": { "type": "object", "properties": { "api": { "type": "string", "description": "API name to search for" }, "method": { "type": "string", "description": "Specific method within the API" } }, "required": ["api"] } },
                     { "name": "omniscience_solve", "description": "Find code that solves a specific problem", "inputSchema": { "type": "object", "properties": { "problem": { "type": "string", "description": "Problem description to solve" }, "languages": { "type": "array", "items": { "type": "string" }, "description": "Preferred languages" }, "max_results": { "type": "integer", "minimum": 1, "default": 5 } }, "required": ["problem"] } }
-                ]
+                ]);
+        if let Value::Array(ref mut arr) = tools_array {
+            inject_token_conservation_params(arr);
+        }
+        JsonRpcResponse::success(
+            id,
+            json!({
+                "tools": tools_array
             }),
         )
     }

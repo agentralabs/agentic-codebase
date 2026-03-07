@@ -23,6 +23,8 @@
 //! - **cli** — Command-line interface.
 //! - **mcp** — Model Context Protocol server interface.
 
+pub mod bridges;
+pub mod cache;
 pub mod cli;
 pub mod collective;
 pub mod config;
@@ -34,7 +36,9 @@ pub mod graph;
 pub mod grounding;
 pub mod index;
 pub mod mcp;
+pub mod metrics;
 pub mod parse;
+pub mod query;
 pub mod semantic;
 pub mod temporal;
 pub mod types;
