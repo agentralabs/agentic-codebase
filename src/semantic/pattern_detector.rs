@@ -3,6 +3,8 @@
 //! Detects common design patterns in code: Singleton, Factory, Repository,
 //! Decorator, Observer, Strategy patterns.
 
+use std::collections::{HashMap, HashSet};
+
 use crate::types::{AcbResult, CodeUnitType, Visibility};
 
 use super::resolver::ResolvedUnit;
@@ -69,46 +71,48 @@ struct SingletonMatcher;
 impl PatternMatcher for SingletonMatcher {
     fn detect(&self, units: &[ResolvedUnit]) -> Vec<PatternInstance> {
         let mut instances = Vec::new();
+        let (functions_by_owner, functions_by_file) = build_function_indexes(units);
 
         for unit in units {
             if unit.unit.unit_type != CodeUnitType::Type {
                 continue;
             }
 
-            // Look for singleton indicators by checking sibling methods
-            let type_name = &unit.unit.name;
-            let type_name_lower = type_name.to_lowercase();
+            let type_name_lower = unit.unit.name.to_lowercase();
+            let candidate_methods =
+                gather_candidate_methods(unit, &functions_by_owner, &functions_by_file);
 
             let mut has_instance_method = false;
             let mut has_private_constructor = false;
             let mut participants = vec![unit.unit.temp_id];
+            let mut seen = HashSet::from([unit.unit.temp_id]);
 
-            for other in units {
-                if other.unit.unit_type != CodeUnitType::Function {
+            for other in candidate_methods {
+                if !method_belongs_to_type(other, &type_name_lower) {
                     continue;
                 }
 
-                let other_qname_lower = other.unit.qualified_name.to_lowercase();
                 let other_name_lower = other.unit.name.to_lowercase();
 
-                // Check if this is a method of the type
-                if other_qname_lower.contains(&type_name_lower) {
-                    // Check for get_instance, instance, or shared patterns
-                    if other_name_lower.contains("instance")
-                        || other_name_lower.contains("shared")
-                        || other_name_lower == "default"
-                    {
-                        has_instance_method = true;
+                // Check for get_instance, instance, or shared patterns
+                if other_name_lower.contains("instance")
+                    || other_name_lower.contains("shared")
+                    || other_name_lower == "default"
+                {
+                    has_instance_method = true;
+                    if seen.insert(other.unit.temp_id) {
                         participants.push(other.unit.temp_id);
                     }
+                }
 
-                    // Check for private constructors
-                    if (other_name_lower == "__init__"
-                        || other_name_lower == "new"
-                        || other_name_lower == "constructor")
-                        && other.unit.visibility == Visibility::Private
-                    {
-                        has_private_constructor = true;
+                // Check for private constructors
+                if (other_name_lower == "__init__"
+                    || other_name_lower == "new"
+                    || other_name_lower == "constructor")
+                    && other.unit.visibility == Visibility::Private
+                {
+                    has_private_constructor = true;
+                    if seen.insert(other.unit.temp_id) {
                         participants.push(other.unit.temp_id);
                     }
                 }
@@ -176,6 +180,7 @@ struct RepositoryMatcher;
 impl PatternMatcher for RepositoryMatcher {
     fn detect(&self, units: &[ResolvedUnit]) -> Vec<PatternInstance> {
         let mut instances = Vec::new();
+        let (functions_by_owner, functions_by_file) = build_function_indexes(units);
 
         for unit in units {
             if unit.unit.unit_type != CodeUnitType::Type {
@@ -189,27 +194,25 @@ impl PatternMatcher for RepositoryMatcher {
                 || name_lower.contains("dao")
                 || name_lower.contains("store")
             {
-                // Look for CRUD methods
+                // Look for CRUD methods among likely methods for this type.
+                let methods =
+                    gather_candidate_methods(unit, &functions_by_owner, &functions_by_file);
                 let mut crud_count = 0;
-                for other in units {
-                    if other.unit.unit_type == CodeUnitType::Function {
-                        let method_lower = other.unit.name.to_lowercase();
-                        let in_type = other
-                            .unit
-                            .qualified_name
-                            .to_lowercase()
-                            .contains(&name_lower);
-                        if in_type
-                            && (method_lower.starts_with("get")
-                                || method_lower.starts_with("find")
-                                || method_lower.starts_with("create")
-                                || method_lower.starts_with("update")
-                                || method_lower.starts_with("delete")
-                                || method_lower.starts_with("save")
-                                || method_lower.starts_with("list"))
-                        {
-                            crud_count += 1;
-                        }
+                for other in methods {
+                    if !method_belongs_to_type(other, &name_lower) {
+                        continue;
+                    }
+
+                    let method_lower = other.unit.name.to_lowercase();
+                    if method_lower.starts_with("get")
+                        || method_lower.starts_with("find")
+                        || method_lower.starts_with("create")
+                        || method_lower.starts_with("update")
+                        || method_lower.starts_with("delete")
+                        || method_lower.starts_with("save")
+                        || method_lower.starts_with("list")
+                    {
+                        crud_count += 1;
                     }
                 }
 
@@ -263,4 +266,82 @@ impl PatternMatcher for DecoratorMatcher {
 
         instances
     }
+}
+
+fn build_function_indexes<'a>(
+    units: &'a [ResolvedUnit],
+) -> (
+    HashMap<String, Vec<&'a ResolvedUnit>>,
+    HashMap<String, Vec<&'a ResolvedUnit>>,
+) {
+    let mut by_owner: HashMap<String, Vec<&ResolvedUnit>> = HashMap::new();
+    let mut by_file: HashMap<String, Vec<&ResolvedUnit>> = HashMap::new();
+
+    for unit in units {
+        if unit.unit.unit_type != CodeUnitType::Function {
+            continue;
+        }
+
+        let file_key = unit.unit.file_path.to_string_lossy().to_string();
+        by_file.entry(file_key).or_default().push(unit);
+
+        if let Some(owner) = infer_owner_type_name(&unit.unit.qualified_name, &unit.unit.name) {
+            by_owner.entry(owner).or_default().push(unit);
+        }
+    }
+
+    (by_owner, by_file)
+}
+
+fn gather_candidate_methods<'a>(
+    type_unit: &ResolvedUnit,
+    functions_by_owner: &HashMap<String, Vec<&'a ResolvedUnit>>,
+    functions_by_file: &HashMap<String, Vec<&'a ResolvedUnit>>,
+) -> Vec<&'a ResolvedUnit> {
+    let type_name_lower = type_unit.unit.name.to_lowercase();
+    if let Some(methods) = functions_by_owner.get(&type_name_lower) {
+        return methods.clone();
+    }
+
+    let file_key = type_unit.unit.file_path.to_string_lossy().to_string();
+    functions_by_file
+        .get(&file_key)
+        .cloned()
+        .unwrap_or_default()
+}
+
+fn method_belongs_to_type(method: &ResolvedUnit, type_name_lower: &str) -> bool {
+    if let Some(owner) = infer_owner_type_name(&method.unit.qualified_name, &method.unit.name) {
+        if owner == type_name_lower {
+            return true;
+        }
+    }
+
+    method
+        .unit
+        .qualified_name
+        .to_lowercase()
+        .contains(type_name_lower)
+}
+
+fn infer_owner_type_name(qname: &str, function_name: &str) -> Option<String> {
+    let segments: Vec<&str> = qname
+        .split(|c| c == '.' || c == ':' || c == '/' || c == '$')
+        .filter(|segment| !segment.is_empty())
+        .collect();
+
+    if segments.len() < 2 {
+        return None;
+    }
+
+    let fn_segment_idx = segments.iter().rposition(|segment| {
+        let clean = segment.split('(').next().unwrap_or(segment);
+        clean == function_name || clean.starts_with(function_name)
+    })?;
+
+    if fn_segment_idx == 0 {
+        return None;
+    }
+
+    Some(segments[fn_segment_idx - 1].to_lowercase())
 }

@@ -1211,12 +1211,14 @@ fn cmd_compile(
     if cli.verbose {
         eprintln!("  {} Running semantic analysis...", s.info());
     }
-    let unit_count = parse_result.units.len();
-    progress("Analyzing", 0, unit_count);
+    const ANALYZE_PHASES: usize = 6;
+    progress("Analyzing", 0, ANALYZE_PHASES);
     let analyzer = SemanticAnalyzer::new();
     let analyze_opts = AnalyzeOptions::default();
-    let graph = analyzer.analyze(parse_result.units, &analyze_opts)?;
-    progress("Analyzing", unit_count, unit_count);
+    let graph =
+        analyzer.analyze_with_progress(parse_result.units, &analyze_opts, |step, total| {
+            progress("Analyzing", step, total);
+        })?;
     progress_done();
 
     if cli.verbose {

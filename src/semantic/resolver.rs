@@ -163,10 +163,18 @@ impl Resolver {
         units: &[RawCodeUnit],
         symbol_table: &SymbolTable,
     ) -> AcbResult<Vec<ResolvedUnit>> {
+        let mut file_imports: HashMap<String, Vec<&RawCodeUnit>> = HashMap::new();
+        for unit in units {
+            if unit.unit_type == CodeUnitType::Import {
+                let file_key = unit.file_path.to_string_lossy().to_string();
+                file_imports.entry(file_key).or_default().push(unit);
+            }
+        }
+
         let mut resolved = Vec::with_capacity(units.len());
 
         for unit in units {
-            let resolved_refs = self.resolve_unit_references(unit, units, symbol_table)?;
+            let resolved_refs = self.resolve_unit_references(unit, symbol_table, &file_imports)?;
             resolved.push(ResolvedUnit {
                 unit: unit.clone(),
                 resolved_refs,
@@ -179,13 +187,13 @@ impl Resolver {
     fn resolve_unit_references(
         &self,
         unit: &RawCodeUnit,
-        all_units: &[RawCodeUnit],
         symbol_table: &SymbolTable,
+        file_imports: &HashMap<String, Vec<&RawCodeUnit>>,
     ) -> AcbResult<Vec<ResolvedReference>> {
         let mut resolved = Vec::new();
 
         for raw_ref in &unit.references {
-            let resolution = self.resolve_reference(raw_ref, unit, all_units, symbol_table);
+            let resolution = self.resolve_reference(raw_ref, unit, symbol_table, file_imports);
             resolved.push(ResolvedReference {
                 raw: raw_ref.clone(),
                 resolution,
@@ -199,8 +207,8 @@ impl Resolver {
         &self,
         raw_ref: &RawReference,
         unit: &RawCodeUnit,
-        all_units: &[RawCodeUnit],
         symbol_table: &SymbolTable,
+        file_imports: &HashMap<String, Vec<&RawCodeUnit>>,
     ) -> Resolution {
         // Strategy 1: Try exact qualified name match
         if let Some(target_id) = symbol_table.lookup_qualified(&raw_ref.name) {
@@ -210,12 +218,12 @@ impl Resolver {
         }
 
         // Strategy 2: Try local resolution (same file, then by simple name)
-        if let Some(local_id) = self.resolve_local(raw_ref, unit, all_units, symbol_table) {
+        if let Some(local_id) = self.resolve_local(raw_ref, unit, symbol_table) {
             return Resolution::Local(local_id);
         }
 
         // Strategy 3: Try imported symbol resolution
-        if let Some(imported) = self.resolve_imported(raw_ref, unit, all_units, symbol_table) {
+        if let Some(imported) = self.resolve_imported(raw_ref, unit, file_imports) {
             return Resolution::Imported(imported);
         }
 
@@ -231,7 +239,6 @@ impl Resolver {
         &self,
         raw_ref: &RawReference,
         unit: &RawCodeUnit,
-        _all_units: &[RawCodeUnit],
         symbol_table: &SymbolTable,
     ) -> Option<u64> {
         let name = raw_ref.name.as_str();
@@ -269,26 +276,20 @@ impl Resolver {
         &self,
         raw_ref: &RawReference,
         unit: &RawCodeUnit,
-        all_units: &[RawCodeUnit],
-        symbol_table: &SymbolTable,
+        file_imports: &HashMap<String, Vec<&RawCodeUnit>>,
     ) -> Option<ImportedSymbol> {
         let name = raw_ref.name.as_str();
-        // Check if any import in the same file matches this name
+        // Check imports declared in the same file only.
         let file_key = unit.file_path.to_string_lossy().to_string();
-        let file_unit_ids = symbol_table.units_in_file(&file_key);
+        let imports_in_file = file_imports.get(&file_key)?;
 
-        for &fid in file_unit_ids {
-            // Find the unit for this ID
-            if let Some(file_unit) = all_units.iter().find(|u| u.temp_id == fid) {
-                if file_unit.unit_type == CodeUnitType::Import {
-                    let import_name = &file_unit.name;
-                    if import_matches(unit.language, raw_ref.kind, import_name, name) {
-                        return Some(ImportedSymbol {
-                            unit_id: fid,
-                            import_path: import_name.clone(),
-                        });
-                    }
-                }
+        for file_unit in imports_in_file {
+            let import_name = &file_unit.name;
+            if import_matches(unit.language, raw_ref.kind, import_name, name) {
+                return Some(ImportedSymbol {
+                    unit_id: file_unit.temp_id,
+                    import_path: import_name.clone(),
+                });
             }
         }
 

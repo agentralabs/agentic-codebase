@@ -63,11 +63,29 @@ impl SemanticAnalyzer {
         raw_units: Vec<RawCodeUnit>,
         options: &AnalyzeOptions,
     ) -> AcbResult<CodeGraph> {
+        self.analyze_with_progress(raw_units, options, |_step, _total_steps| {})
+    }
+
+    /// Analyze with coarse-grained phase progress callbacks.
+    pub fn analyze_with_progress<F>(
+        &self,
+        raw_units: Vec<RawCodeUnit>,
+        options: &AnalyzeOptions,
+        mut on_progress: F,
+    ) -> AcbResult<CodeGraph>
+    where
+        F: FnMut(usize, usize),
+    {
+        const TOTAL_STEPS: usize = 6;
+        on_progress(0, TOTAL_STEPS);
+
         // Phase 1: Build symbol table
         let symbol_table = SymbolTable::build(&raw_units)?;
+        on_progress(1, TOTAL_STEPS);
 
         // Phase 2: Resolve references
         let resolved = self.resolver.resolve_all(&raw_units, &symbol_table)?;
+        on_progress(2, TOTAL_STEPS);
 
         // Phase 3: Trace FFI boundaries
         let ffi_edges = if options.trace_ffi {
@@ -75,6 +93,7 @@ impl SemanticAnalyzer {
         } else {
             Vec::new()
         };
+        on_progress(3, TOTAL_STEPS);
 
         // Phase 4: Detect patterns
         let patterns = if options.detect_patterns {
@@ -82,6 +101,7 @@ impl SemanticAnalyzer {
         } else {
             Vec::new()
         };
+        on_progress(4, TOTAL_STEPS);
 
         // Phase 5: Extract concepts
         let concepts = if options.extract_concepts {
@@ -89,9 +109,12 @@ impl SemanticAnalyzer {
         } else {
             Vec::new()
         };
+        on_progress(5, TOTAL_STEPS);
 
         // Phase 6: Build final graph
-        self.build_graph(resolved, ffi_edges, patterns, concepts)
+        let graph = self.build_graph(resolved, ffi_edges, patterns, concepts)?;
+        on_progress(6, TOTAL_STEPS);
+        Ok(graph)
     }
 
     /// Build the CodeGraph from resolved units and analysis results.
