@@ -250,42 +250,65 @@ impl ConceptExtractor {
 
     /// Extract concepts from the resolved units.
     pub fn extract(&self, units: &[ResolvedUnit]) -> AcbResult<Vec<ExtractedConcept>> {
-        let mut extracted = Vec::new();
+        let mut concept_units_by_idx: Vec<Vec<ConceptUnit>> =
+            (0..self.concepts.len()).map(|_| Vec::new()).collect();
 
-        for concept_def in &self.concepts {
-            let mut concept_units = Vec::new();
+        // Precompute normalized text once per unit to avoid repeated lowercasing
+        // for each concept definition.
+        for unit in units {
+            let name_lower = unit.unit.name.to_lowercase();
+            let qname_lower = unit.unit.qualified_name.to_lowercase();
+            let doc_lower = unit.unit.doc.as_ref().map(|d| d.to_lowercase());
+            let role = self.determine_role(unit);
 
-            for unit in units {
-                let score = self.score_unit(unit, concept_def);
+            for (idx, concept_def) in self.concepts.iter().enumerate() {
+                let score = self.score_unit_normalized(
+                    &name_lower,
+                    &qname_lower,
+                    doc_lower.as_deref(),
+                    unit.unit.unit_type,
+                    concept_def,
+                );
+
                 if score > 0.3 {
-                    concept_units.push(ConceptUnit {
+                    concept_units_by_idx[idx].push(ConceptUnit {
                         unit_id: unit.unit.temp_id,
-                        role: self.determine_role(unit),
+                        role,
                         score,
                     });
                 }
             }
+        }
 
-            if !concept_units.is_empty() {
-                let avg_score =
-                    concept_units.iter().map(|u| u.score).sum::<f32>() / concept_units.len() as f32;
-
-                extracted.push(ExtractedConcept {
-                    name: concept_def.name.clone(),
-                    units: concept_units,
-                    confidence: avg_score,
-                });
+        let mut extracted = Vec::new();
+        for (idx, concept_def) in self.concepts.iter().enumerate() {
+            let concept_units = std::mem::take(&mut concept_units_by_idx[idx]);
+            if concept_units.is_empty() {
+                continue;
             }
+
+            let avg_score =
+                concept_units.iter().map(|u| u.score).sum::<f32>() / concept_units.len() as f32;
+
+            extracted.push(ExtractedConcept {
+                name: concept_def.name.clone(),
+                units: concept_units,
+                confidence: avg_score,
+            });
         }
 
         Ok(extracted)
     }
 
-    fn score_unit(&self, unit: &ResolvedUnit, concept: &ConceptDefinition) -> f32 {
+    fn score_unit_normalized(
+        &self,
+        name_lower: &str,
+        qname_lower: &str,
+        doc_lower: Option<&str>,
+        unit_type: CodeUnitType,
+        concept: &ConceptDefinition,
+    ) -> f32 {
         let mut score = 0.0f32;
-
-        let name_lower = unit.unit.name.to_lowercase();
-        let qname_lower = unit.unit.qualified_name.to_lowercase();
 
         // Keyword matching in name
         for keyword in &concept.keywords {
@@ -297,8 +320,7 @@ impl ConceptExtractor {
         }
 
         // Doc matching
-        if let Some(ref doc) = unit.unit.doc {
-            let doc_lower = doc.to_lowercase();
+        if let Some(doc_lower) = doc_lower {
             for keyword in &concept.keywords {
                 if doc_lower.contains(keyword.as_str()) {
                     score += 0.15;
@@ -307,7 +329,7 @@ impl ConceptExtractor {
         }
 
         // Type bonus
-        if concept.typical_types.contains(&unit.unit.unit_type) {
+        if concept.typical_types.contains(&unit_type) {
             score += 0.1;
         }
 
